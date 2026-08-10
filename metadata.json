@@ -1,0 +1,6 @@
+{
+  "name": "Typing Speed Test",
+  "description": "Measure typing speed (WPM), accuracy, and consistency in real-time with comprehensive stats, customizable modes, local history, and image export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
