@@ -37,7 +37,7 @@ A beautiful, lightweight typing speed test built with **pure HTML, CSS, and Java
  
 ### Clone & Run
 ```bash
-git clone https://github.com/yourusername/typing-speed-test.git
+git clone https://github.com/garvshaw89-glitch/typing-speed-test.git
 cd typing-speed-test
 open index.html
 ```
