@@ -29,7 +29,7 @@ A beautiful, lightweight typing speed test built with **pure HTML, CSS, and Java
  
 ## 🌐 Live Demo
  
-** (https://typing-speed-checker-liard.vercel.app/)**
+(https://typing-speed-checker-liard.vercel.app/)
  
 ---
  
