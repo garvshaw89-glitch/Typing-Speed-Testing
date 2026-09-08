@@ -181,20 +181,61 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       </div>
 
+      {/* 3D Feature Architecture Quick Access */}
+      <div className="p-6 rounded-3xl bg-slate-100/80 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <span className="text-blue-500">🎮</span>
+              <span>3D Feature Matrix &amp; Diagnostic Tools</span>
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Live keystroke physics, anatomical finger guides, and synthesized acoustic feedback
+            </p>
+          </div>
+          <button
+            onClick={onOpenHistory}
+            className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+          >
+            <span>View 3D Keyboard Heatmap</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-3 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700">
+            <span className="font-extrabold text-blue-600 dark:text-blue-400 block mb-1">⚡ Physics Engine</span>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px] leading-snug block">Net WPM formula with strict error penalty deduction</span>
+          </div>
+          <div className="p-3 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700">
+            <span className="font-extrabold text-indigo-600 dark:text-indigo-400 block mb-1">⌨️ 3D Heatmap</span>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px] leading-snug block">Color-coded 5-finger ergonomic placement mapping</span>
+          </div>
+          <div className="p-3 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700">
+            <span className="font-extrabold text-amber-600 dark:text-amber-400 block mb-1">🎯 Audio Synth</span>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px] leading-snug block">Web Audio API dual-wave mechanical switch clicks</span>
+          </div>
+          <div className="p-3 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700">
+            <span className="font-extrabold text-emerald-600 dark:text-emerald-400 block mb-1">📱 Mobile Ready</span>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px] leading-snug block">Zero-lag tap-to-focus virtual keyboard for iOS &amp; Android</span>
+          </div>
+        </div>
+      </div>
+
       {/* Quick Links Footer */}
       <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
         <button
           onClick={onOpenSettings}
-          className="hover:text-blue-600 dark:hover:text-blue-400 underline underline-offset-4"
+          className="hover:text-blue-600 dark:hover:text-blue-400 underline underline-offset-4 cursor-pointer"
         >
           Customize All Settings
         </button>
         <span>•</span>
         <button
           onClick={onOpenHistory}
-          className="hover:text-blue-600 dark:hover:text-blue-400 underline underline-offset-4"
+          className="hover:text-blue-600 dark:hover:text-blue-400 underline underline-offset-4 cursor-pointer"
         >
-          View Detailed History
+          View Full Performance History &amp; 3D Key Matrix
         </button>
       </div>
     </div>
