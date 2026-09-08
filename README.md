@@ -48,14 +48,6 @@
 
 ---
 
-## 🚀 Live Demo
-
-Experience the full 3D interactive application directly in your web browser:
-
-> ### 🔗 **[https://typing-speed-checker-liard.vercel.app/](https://typing-speed-checker-liard.vercel.app/)**
-
----
-
 ## 🎮 3D Feature Architecture & Bento Matrix
 
 All core features are engineered with sub-millisecond precision, zero third-party dependencies, and native browser hardware acceleration:
