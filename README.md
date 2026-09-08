@@ -223,7 +223,7 @@ Run the project locally on your workstation:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/typing-speed-checker.git
+git clone https://github.com/garvshaw89-glitch/typing-speed-checker.git
 cd typing-speed-checker
 
 # 2. Install dependencies
