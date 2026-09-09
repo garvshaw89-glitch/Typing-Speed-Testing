@@ -2,7 +2,7 @@
 
   <!-- 3D Cylindrical Cyber Hologram Hero Banner (100% Working Everywhere) -->
   <a href="https://typing-speed-checker-liard.vercel.app/" target="_blank" rel="noopener noreferrer">
-    <img src="https://capsule-render.vercel.app/api?type=cylinder&color=0:0a0f1d,20:1e1b4b,45:312e81,70:0369a1,90:0284c7,100:06b6d4&height=280&section=header&text=TYPING%20SPEED%20CHECKER%203D&fontSize=44&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=%E2%9A%A1%20Real-Time%20Keystroke%20Physics%20%E2%80%A2%20Tactile%203D%20Heatmap%20%E2%80%A2%20Web%20Audio%20Synth%20%E2%80%A2%20Mobile%20Ready&descAlignY=58&descSize=15&descAlign=50" width="100%" alt="3D Typing Speed Checker Holographic Hero Banner" />
+    <img src="https://capsule-render.vercel.app/api?type=cylinder&color=0:0a0f1d,20:1e1b4b,45:312e81,70:0369a1,90:0284c7,100:06b6d4&height=280&section=header&text=TYPING%20SPEED%20TESTING%20&fontSize=44&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=%E2%9A%A1%20Real-Time%20Keystroke%20Physics%20%E2%80%A2%20Tactile%203D%20Heatmap%20%E2%80%A2%20Web%20Audio%20Synth%20%E2%80%A2%20Mobile%20Ready&descAlignY=58&descSize=15&descAlign=50" width="100%" alt="3D Typing Speed Testing Holographic Hero Banner" />
   </a>
 
   <br/>
