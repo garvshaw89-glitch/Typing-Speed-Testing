@@ -245,5 +245,5 @@ npm run build
 ---
 
 <div align="center">
-  <sub>Built with precision for typists, developers, and keyboard enthusiasts worldwide. • Licensed under MIT</sub>
+  <sub>Built with precision for typists, developers, and keyboard enthusiasts worldwide. • Licensed under LGPL-2.1</sub>
 </div>
