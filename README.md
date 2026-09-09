@@ -1,27 +1,27 @@
 <div align="center">
 
   <!-- 3D Cylindrical Cyber Hologram Hero Banner (100% Working Everywhere) -->
-  <a href="https://typing-speed-checker-liard.vercel.app/" target="_blank" rel="noopener noreferrer">
+  <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
     <img src="https://capsule-render.vercel.app/api?type=cylinder&color=0:0a0f1d,20:1e1b4b,45:312e81,70:0369a1,90:0284c7,100:06b6d4&height=280&section=header&text=TYPING%20SPEED%20TESTING%20&fontSize=44&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=%E2%9A%A1%20Real-Time%20Keystroke%20Physics%20%E2%80%A2%20Tactile%203D%20Heatmap%20%E2%80%A2%20Web%20Audio%20Synth%20%E2%80%A2%20Mobile%20Ready&descAlignY=58&descSize=15&descAlign=50" width="100%" alt="3D Typing Speed Testing Holographic Hero Banner" />
   </a>
 
   <br/>
 
   <!-- 3D Animated Cyber Terminal Output Stream -->
-  <a href="https://typing-speed-checker-liard.vercel.app/" target="_blank" rel="noopener noreferrer">
+  <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
     <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=19&duration=2400&pause=1000&color=38BDF8&center=true&vCenter=true&multiline=false&width=820&height=48&lines=%E2%9A%A1+1000Hz+Keystroke+Physics+Engine%3A+Net+WPM%2C+CPM+%26+Error+Penalties;%E2%8C%A8%EF%B8%8F+3D+Tactile+Ergonomic+Keyboard+%26+Color-Coded+Finger+Heatmap;%F0%9F%8E%AF+Adaptive+Target+WPM+Pace+Challenger+%2B+Web+Audio+Synthesizer;%F0%9F%93%B1+Zero-Lag+Mobile+Touch+Focus+Engine%3A+iOS+%26+Android+Optimized;%F0%9F%93%8A+Dynamic+SVG+Trendline+Analytics%2C+Weak-Key+Diagnostics+%26+PNG+Export" alt="3D Real-Time Typing Stream" />
   </a>
 
   <br/><br/>
 
   <!-- 3D Tactile Launch Buttons & Operational Badges -->
-  <a href="https://typing-speed-checker-liard.vercel.app/" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/🚀_LAUNCH_LIVE_3D_PROJECT-typing--speed--checker--liard.vercel.app-0284c7?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo Link" height="42" />
+  <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/🚀_LAUNCH_LIVE_3D_PROJECT-typing--speed--tester--two.vercel.app-0284c7?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo Link" height="42" />
   </a>
-  <a href="https://typing-speed-checker-liard.vercel.app/" target="_blank" rel="noopener noreferrer">
+  <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/STATUS-ACTIVE_%26_VERIFIED-10b981?style=for-the-badge&logo=statuspal&logoColor=white" alt="Operational Status" height="42" />
   </a>
-  <a href="https://github.com/garvshaw89-glitch/typing-speed-checker/blob/main/LICENSE">
+  <a href="https://github.com/garvshaw89-glitch/typing-speed-tester/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/LICENSE-MIT-8b5cf6?style=for-the-badge" alt="MIT License" height="42" />
   </a>
 
@@ -39,8 +39,8 @@
 
   <p>
     <strong>🌐 Direct Live URL:</strong><br/>
-    <a href="https://typing-speed-checker-liard.vercel.app/" target="_blank" rel="noopener noreferrer">
-      <code>https://typing-speed-checker-liard.vercel.app/</code>
+    <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
+      <code>https://typing-speed-tester-two.vercel.app/</code>
     </a>
   </p>
 
@@ -223,8 +223,8 @@ Run the project locally on your workstation:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/garvshaw89-glitch/typing-speed-checker.git
-cd typing-speed-checker
+git clone https://github.com/garvshaw89-glitch/typing-speed-tester.git
+cd typing-speed-tester
 
 # 2. Install dependencies
 npm install
@@ -240,7 +240,7 @@ npm run build
 
 ## 🌐 Live Application
 
-👉 **[https://typing-speed-checker-liard.vercel.app/](https://typing-speed-checker-liard.vercel.app/)**
+👉 **[https://typing-speed-tester-two.vercel.app/](https://typing-speed-tester-two.vercel.app/)**
 
 ---
 
