@@ -3,6 +3,27 @@ export type TextType = 'words' | 'sentences' | 'code' | 'paragraph';
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type FontSizeOption = 'small' | 'medium' | 'large';
 
+export type TrophyTier = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master';
+export type AchievementCategory = 'speed' | 'accuracy' | 'endurance' | 'streak';
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  category: AchievementCategory;
+  tier: TrophyTier;
+  targetValue: number;
+  unit?: string;
+  iconName: 'trophy' | 'award' | 'zap' | 'flame' | 'target' | 'crown' | 'sparkles' | 'shield' | 'check';
+  isUnlocked: boolean;
+  unlockedAt?: number;
+  currentValue: number;
+  progress: number; // 0 - 100
+  badgeColor: string;
+  badgeGradient: string;
+  rewardText: string;
+}
+
 export interface UserPreferences {
   testDuration: number; // in seconds (e.g. 15, 30, 60, 120, or custom)
   difficultyLevel: DifficultyLevel;
@@ -33,6 +54,8 @@ export interface TestResult {
   duration: number;  // in seconds
   difficulty: DifficultyLevel;
   textType: TextType;
+  isWarmup?: boolean;
+  rhythmRating?: string;
 
   // Typing metrics
   totalCharactersTyped: number;

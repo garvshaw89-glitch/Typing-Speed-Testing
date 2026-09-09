@@ -5,12 +5,14 @@ import { X } from 'lucide-react';
 
 interface PreparationScreenProps {
   preferences: UserPreferences;
+  isWarmupMode?: boolean;
   onCountdownComplete: () => void;
   onCancel: () => void;
 }
 
 export const PreparationScreen: React.FC<PreparationScreenProps> = ({
   preferences,
+  isWarmupMode = false,
   onCountdownComplete,
   onCancel,
 }) => {
@@ -64,10 +66,12 @@ export const PreparationScreen: React.FC<PreparationScreenProps> = ({
 
         <div className="space-y-1">
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
-            Get Ready To Type!
+            {isWarmupMode ? '🌿 Warm-up Session' : 'Get Ready To Type!'}
           </h2>
           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            {preferences.testDuration}s • {preferences.difficultyLevel} • {preferences.textType}
+            {isWarmupMode
+              ? '30s • Relax your hands and focus on steady rhythm'
+              : `${preferences.testDuration}s • ${preferences.difficultyLevel} • ${preferences.textType}`}
           </p>
         </div>
 

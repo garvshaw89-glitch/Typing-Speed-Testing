@@ -1,5 +1,5 @@
 import React from 'react';
-import { Keyboard, History, Settings, HelpCircle, Sun, Moon, Flame } from 'lucide-react';
+import { History, Settings, HelpCircle, Sun, Moon, Flame, Trophy } from 'lucide-react';
 import { UserPreferences, UserStats, AppScreen } from '../types';
 
 interface NavbarProps {
@@ -7,6 +7,7 @@ interface NavbarProps {
   onNavigate: (screen: AppScreen) => void;
   onOpenSettings: () => void;
   onOpenHelp: () => void;
+  onOpenTrophies?: () => void;
   preferences: UserPreferences;
   onToggleTheme: () => void;
   stats: UserStats;
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   onOpenSettings,
   onOpenHelp,
+  onOpenTrophies,
   preferences,
   onToggleTheme,
   stats,
@@ -29,8 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => onNavigate('home')}
           className="flex items-center gap-3 text-left focus:outline-none group"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            <Keyboard className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-slate-900/20 group-hover:scale-105 transition-transform bg-[#0b112c] flex items-center justify-center border border-slate-700/50">
+            <img src="/favicon.svg" alt="Typing Speed Test Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -50,6 +52,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Flame className="w-4 h-4 fill-amber-500 text-amber-500 animate-bounce" />
               <span>{stats.currentStreakDays} Day Streak</span>
             </div>
+          )}
+
+          {/* Trophies Button */}
+          {onOpenTrophies && (
+            <button
+              onClick={onOpenTrophies}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+              title="View Trophies & Speed Milestones"
+            >
+              <Trophy className="w-4 h-4 text-amber-500 fill-amber-500/20" />
+              <span className="hidden lg:inline text-xs font-bold">Trophies</span>
+            </button>
           )}
 
           {/* History Button */}

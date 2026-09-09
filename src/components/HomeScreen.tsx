@@ -1,14 +1,32 @@
-import React from 'react';
-import { Play, Trophy, Target, Award, Flame, Zap, SlidersHorizontal, BookOpen, Code, AlignLeft } from 'lucide-react';
+import React, { useMemo } from 'react';
+import {
+  Play,
+  Trophy,
+  Target,
+  Award,
+  Flame,
+  Zap,
+  SlidersHorizontal,
+  BookOpen,
+  Code,
+  AlignLeft,
+  Sparkles,
+  ChevronRight,
+  Activity,
+  Wind,
+} from 'lucide-react';
 import { UserPreferences, UserStats, DifficultyLevel, TextType } from '../types';
+import { getAllAchievements } from '../services/achievementService';
 
 interface HomeScreenProps {
   stats: UserStats;
   preferences: UserPreferences;
   onUpdatePreferences: (prefs: Partial<UserPreferences>) => void;
   onStartTest: () => void;
+  onStartWarmup: () => void;
   onOpenSettings: () => void;
   onOpenHistory: () => void;
+  onOpenTrophies?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -16,10 +34,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   preferences,
   onUpdatePreferences,
   onStartTest,
+  onStartWarmup,
   onOpenSettings,
   onOpenHistory,
+  onOpenTrophies,
 }) => {
   const durations = [15, 30, 60, 120];
+
+  const allAchievements = useMemo(() => {
+    return getAllAchievements(stats, []);
+  }, [stats]);
+
+  const unlockedTrophyCount = useMemo(() => {
+    return allAchievements.filter((a) => a.isUnlocked).length;
+  }, [allAchievements]);
+
+  const nextSpeedMilestone = useMemo(() => {
+    return allAchievements
+      .filter((a) => a.category === 'speed' && !a.isUnlocked)
+      .sort((a, b) => a.targetValue - b.targetValue)[0];
+  }, [allAchievements]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
@@ -87,6 +121,104 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </span>
             <span className="text-xs text-slate-500 font-medium">days</span>
           </div>
+        </div>
+      </div>
+
+      {/* Trophies & Milestones Highlight Banner */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border border-amber-500/25 dark:border-amber-500/35 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
+            <Trophy className="w-5 h-5 fill-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">
+                Typing Trophies &amp; Milestones
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                {unlockedTrophyCount} / {allAchievements.length} Unlocked
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+              {nextSpeedMilestone ? (
+                <span>
+                  Next Goal: <strong className="text-slate-900 dark:text-white">{nextSpeedMilestone.title} ({nextSpeedMilestone.targetValue} WPM)</strong>
+                  {stats.bestWpm > 0 && ` • Need +${Math.max(1, nextSpeedMilestone.targetValue - stats.bestWpm)} WPM to unlock`}
+                </span>
+              ) : (
+                <span>All speed milestone trophies mastered! Amazing job!</span>
+              )}
+            </p>
+          </div>
+        </div>
+
+        {onOpenTrophies && (
+          <button
+            onClick={onOpenTrophies}
+            className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/30 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs shrink-0 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>Trophy Showcase</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Warm-up Mode Feature Card */}
+      <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-teal-500/15 via-emerald-500/10 to-cyan-500/15 border-2 border-teal-500/30 dark:border-teal-500/40 shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-teal-500/50 transition-all">
+        {/* Glow backdrop decorative accent */}
+        <div className="absolute -right-12 -top-12 w-44 h-44 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="space-y-3 relative z-10 max-w-xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-teal-600 text-white shadow-xs flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5" />
+              <span>Warm-up Mode</span>
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-100 dark:bg-teal-950/80 text-teal-800 dark:text-teal-300 border border-teal-500/20">
+              30 Seconds • Low Pressure
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20">
+              Rhythm &amp; Flow Focus
+            </span>
+          </div>
+
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Ease Into Your Flow
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+              Loosen your wrists, relax hand tension, and lock into an even keystroke cadence before sprinting for personal bests. No speed pressure, no harsh penalties — pure rhythm and flow.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs text-slate-600 dark:text-slate-300 font-medium">
+            <div className="flex items-center gap-1.5 bg-white/70 dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-teal-500/20">
+              <span className="w-2 h-2 rounded-full bg-teal-500" />
+              <span>Live Cadence Meter</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/70 dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-teal-500/20">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>Calming Acoustic Feedback</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/70 dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-teal-500/20">
+              <span className="w-2 h-2 rounded-full bg-cyan-500" />
+              <span>Ergonomic Flow Passages</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="shrink-0 relative z-10 flex flex-col sm:flex-row md:flex-col gap-2.5">
+          <button
+            onClick={onStartWarmup}
+            className="py-4 px-6 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-extrabold text-base shadow-lg shadow-teal-600/30 hover:shadow-teal-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+          >
+            <Activity className="w-5 h-5" />
+            <span>Start Warm-up (30s)</span>
+          </button>
+          <span className="text-[11px] text-center text-teal-700 dark:text-teal-400 font-semibold">
+            Recommended before full tests
+          </span>
         </div>
       </div>
 
@@ -170,7 +302,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         {/* Start Test Main Button */}
-        <div className="pt-2">
+        <div className="pt-2 space-y-3">
           <button
             onClick={onStartTest}
             className="w-full py-4 sm:py-5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg sm:text-xl shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 cursor-pointer group"
@@ -178,6 +310,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <Play className="w-6 h-6 fill-white group-hover:translate-x-0.5 transition-transform" />
             <span>Start Test ({preferences.testDuration}s - {preferences.difficultyLevel})</span>
           </button>
+
+          <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span>Want to loosen up wrists first?</span>
+            <button
+              type="button"
+              onClick={onStartWarmup}
+              className="text-teal-600 dark:text-teal-400 hover:underline font-bold inline-flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Launch 30s Warm-up Mode</span>
+            </button>
+          </div>
         </div>
       </div>
 

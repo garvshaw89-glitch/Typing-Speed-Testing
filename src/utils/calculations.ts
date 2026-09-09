@@ -63,6 +63,55 @@ export interface PerformanceRating {
   color: string;
 }
 
+export interface RhythmRating {
+  label: string;
+  badge: string;
+  color: string;
+  bg: string;
+  borderColor: string;
+  description: string;
+}
+
+export function getRhythmRating(consistency: number): RhythmRating {
+  if (consistency >= 90) {
+    return {
+      label: 'Zen Harmonic Cadence',
+      badge: 'Harmonic Flow',
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+      borderColor: 'border-emerald-500/30',
+      description: 'Metronomic precision with effortlessly relaxed hands and even keystroke intervals.',
+    };
+  } else if (consistency >= 78) {
+    return {
+      label: 'Silky Smooth Rhythm',
+      badge: 'Smooth Cadence',
+      color: 'text-teal-600 dark:text-teal-400',
+      bg: 'bg-teal-50 dark:bg-teal-950/30',
+      borderColor: 'border-teal-500/30',
+      description: 'Fluid, natural tempo across letters with minimal tension and steady word pacing.',
+    };
+  } else if (consistency >= 65) {
+    return {
+      label: 'Consistent Tempo',
+      badge: 'Steady Rhythm',
+      color: 'text-blue-600 dark:text-blue-400',
+      bg: 'bg-blue-50 dark:bg-blue-950/30',
+      borderColor: 'border-blue-500/30',
+      description: 'Good foundational rhythm. A little more relaxation on punctuation will unlock even higher flow.',
+    };
+  } else {
+    return {
+      label: 'Hands Warmed Up',
+      badge: 'Building Flow',
+      color: 'text-amber-600 dark:text-amber-400',
+      bg: 'bg-amber-50 dark:bg-amber-950/30',
+      borderColor: 'border-amber-500/30',
+      description: 'Your fingers are waking up! Next round, focus on even time between letters rather than fast bursts.',
+    };
+  }
+}
+
 export function getPerformanceRating(wpm: number): PerformanceRating {
   if (wpm <= 20) {
     return { title: 'Beginner', message: 'Keep practicing! Focus on finger placement.', color: 'text-amber-500' };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { AppScreen, TestResult, UserPreferences, UserStats } from './types';
+import { AppScreen, TestResult, UserPreferences, UserStats, Achievement } from './types';
 import { getPreferences, savePreferences, getTestHistory, getUserStats, saveTestResult } from './services/storageService';
+import { checkNewlyUnlockedAchievements } from './services/achievementService';
 import { soundEngine } from './services/soundEngine';
 import { Navbar } from './components/Navbar';
 import { Toast, ToastMessage } from './components/Toast';
@@ -11,6 +12,7 @@ import { ResultsScreen } from './components/ResultsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { SettingsModal } from './components/SettingsModal';
 import { HelpModal } from './components/HelpModal';
+import { TrophyCelebrationModal } from './components/TrophyCelebrationModal';
 
 export default function App() {
   const [screen, setScreen] = useState<AppScreen>('home');
@@ -18,6 +20,10 @@ export default function App() {
   const [stats, setStats] = useState<UserStats>(getUserStats());
   const [history, setHistory] = useState<TestResult[]>(getTestHistory());
   const [currentResult, setCurrentResult] = useState<TestResult | null>(null);
+  const [historyInitialTab, setHistoryInitialTab] = useState<'list' | 'chart' | 'keyboard' | 'trophies'>('list');
+  const [recentUnlockedAchievements, setRecentUnlockedAchievements] = useState<Achievement[]>([]);
+  const [showCelebrationModal, setShowCelebrationModal] = useState<boolean>(false);
+  const [isWarmupMode, setIsWarmupMode] = useState<boolean>(false);
 
   // Modals & Toasts
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
@@ -71,8 +77,34 @@ export default function App() {
     setStats(getUserStats());
   }, []);
 
+  // Handlers for Navigation with specific sub-tabs
+  const handleOpenTrophies = () => {
+    setHistoryInitialTab('trophies');
+    setScreen('history');
+  };
+
+  const handleOpenHistory = (tab: 'list' | 'chart' | 'keyboard' | 'trophies' = 'list') => {
+    setHistoryInitialTab(tab);
+    setScreen('history');
+  };
+
   // Handle Starting Test Flow
   const handleStartTest = () => {
+    setIsWarmupMode(false);
+    setRecentUnlockedAchievements([]);
+    setShowCelebrationModal(false);
+    if (preferences.autoStartCountdown) {
+      setScreen('prep');
+    } else {
+      setScreen('test');
+    }
+  };
+
+  // Handle Starting Warm-up Flow
+  const handleStartWarmup = () => {
+    setIsWarmupMode(true);
+    setRecentUnlockedAchievements([]);
+    setShowCelebrationModal(false);
     if (preferences.autoStartCountdown) {
       setScreen('prep');
     } else {
@@ -85,13 +117,28 @@ export default function App() {
     const saveOutcome = saveTestResult(result);
     const updatedResult = { ...result, isPersonalBest: saveOutcome.isPersonalBest };
     setCurrentResult(updatedResult);
-    refreshHistoryAndStats();
+
+    const updatedHistory = getTestHistory();
+    const updatedStats = getUserStats();
+    setHistory(updatedHistory);
+    setStats(updatedStats);
+
+    // Check for speed milestones and trophies
+    const newlyUnlocked = checkNewlyUnlockedAchievements(result, updatedStats, updatedHistory);
+    setRecentUnlockedAchievements(newlyUnlocked);
+
     setScreen('results');
 
-    if (saveOutcome.isPersonalBest) {
+    if (newlyUnlocked.length > 0) {
+      soundEngine.playTrophyFanfare();
+      setShowCelebrationModal(true);
+      showToast(`🏆 Milestone Unlocked: ${newlyUnlocked[0].title}!`, 'success');
+    } else if (saveOutcome.isPersonalBest) {
+      soundEngine.playSuccessChime(true);
       showToast('🎉 New Personal Best Speed Achieved!', 'success');
     } else {
-      showToast('Test results saved to history.', 'success');
+      soundEngine.playSuccessChime(false);
+      showToast(result.isWarmup ? 'Warm-up session complete!' : 'Test results saved to history.', 'success');
     }
   };
 
@@ -100,9 +147,13 @@ export default function App() {
       {/* Top Navigation Bar */}
       <Navbar
         currentScreen={screen}
-        onNavigate={(s) => setScreen(s)}
+        onNavigate={(s) => {
+          if (s === 'history') setHistoryInitialTab('list');
+          setScreen(s);
+        }}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenHelp={() => setIsHelpOpen(true)}
+        onOpenTrophies={handleOpenTrophies}
         preferences={preferences}
         onToggleTheme={handleToggleTheme}
         stats={stats}
@@ -116,14 +167,17 @@ export default function App() {
             preferences={preferences}
             onUpdatePreferences={handleUpdatePreferences}
             onStartTest={handleStartTest}
+            onStartWarmup={handleStartWarmup}
             onOpenSettings={() => setIsSettingsOpen(true)}
-            onOpenHistory={() => setScreen('history')}
+            onOpenHistory={() => handleOpenHistory('list')}
+            onOpenTrophies={handleOpenTrophies}
           />
         )}
 
         {screen === 'prep' && (
           <PreparationScreen
             preferences={preferences}
+            isWarmupMode={isWarmupMode}
             onCountdownComplete={() => setScreen('test')}
             onCancel={() => setScreen('home')}
           />
@@ -132,6 +186,7 @@ export default function App() {
         {screen === 'test' && (
           <ActiveTestScreen
             preferences={preferences}
+            isWarmupMode={isWarmupMode}
             onCompleteTest={handleTestCompleted}
             onCancelTest={() => setScreen('home')}
             onShowToast={showToast}
@@ -142,9 +197,13 @@ export default function App() {
           <ResultsScreen
             result={currentResult}
             stats={stats}
-            onTryAgain={handleStartTest}
+            newlyUnlockedAchievements={recentUnlockedAchievements}
+            onTryAgain={currentResult.isWarmup ? handleStartWarmup : handleStartTest}
+            onStartTest={handleStartTest}
+            onStartWarmup={handleStartWarmup}
             onNewTest={() => setIsSettingsOpen(true)}
-            onViewHistory={() => setScreen('history')}
+            onViewHistory={() => handleOpenHistory('list')}
+            onViewTrophies={handleOpenTrophies}
             onShowToast={showToast}
           />
         )}
@@ -153,12 +212,23 @@ export default function App() {
           <HistoryScreen
             history={history}
             stats={stats}
+            initialViewMode={historyInitialTab}
             onRefreshHistory={refreshHistoryAndStats}
             onBackToHome={() => setScreen('home')}
+            onStartTest={handleStartTest}
             onShowToast={showToast}
           />
         )}
       </main>
+
+      {/* Trophy Celebration Modal */}
+      {showCelebrationModal && recentUnlockedAchievements.length > 0 && (
+        <TrophyCelebrationModal
+          unlockedAchievements={recentUnlockedAchievements}
+          onClose={() => setShowCelebrationModal(false)}
+          onViewAllTrophies={handleOpenTrophies}
+        />
+      )}
 
       {/* Settings Modal */}
       <SettingsModal

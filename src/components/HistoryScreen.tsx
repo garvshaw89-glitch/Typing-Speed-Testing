@@ -1,8 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { TestResult, UserStats } from '../types';
 import { exportHistoryToCSV, deleteTestResult, clearAllHistory } from '../services/storageService';
+import { getAllAchievements } from '../services/achievementService';
 import { KeyboardLayout } from './KeyboardLayout';
-import { Trash2, Download, TrendingUp, BarChart3, ListFilter, ArrowLeft, Trophy, Target, Award, Calendar, AlertTriangle, Keyboard } from 'lucide-react';
+import { TrophiesView } from './TrophiesView';
+import {
+  Trash2,
+  Download,
+  TrendingUp,
+  BarChart3,
+  ListFilter,
+  ArrowLeft,
+  Trophy,
+  Target,
+  Award,
+  Calendar,
+  AlertTriangle,
+  Keyboard,
+  Sparkles,
+  Zap,
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+} from 'recharts';
 
 interface HistoryScreenProps {
   history: TestResult[];
@@ -10,11 +38,13 @@ interface HistoryScreenProps {
   onRefreshHistory: () => void;
   onBackToHome: () => void;
   onShowToast: (message: string, type: 'success' | 'info') => void;
+  initialViewMode?: ViewMode;
+  onStartTest?: () => void;
 }
 
 type FilterRange = 'all' | '7days' | '30days';
 type SortField = 'date' | 'wpm' | 'accuracy' | 'duration';
-type ViewMode = 'list' | 'chart' | 'keyboard';
+export type ViewMode = 'list' | 'chart' | 'keyboard' | 'trophies';
 
 export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   history,
@@ -22,12 +52,21 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   onRefreshHistory,
   onBackToHome,
   onShowToast,
+  initialViewMode = 'list',
+  onStartTest,
 }) => {
   const [filterRange, setFilterRange] = useState<FilterRange>('all');
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
   const [showClearConfirm, setShowClearConfirm] = useState<boolean>(false);
+
+  const achievements = useMemo(() => {
+    return getAllAchievements(stats, history);
+  }, [stats, history]);
+  const unlockedTrophyCount = useMemo(() => {
+    return achievements.filter((a) => a.isUnlocked).length;
+  }, [achievements]);
 
   // Filter history
   const filteredHistory = history.filter((item) => {
@@ -69,8 +108,49 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   };
 
   // Chart calculation (data points in chronological order)
-  const chartData = [...filteredHistory].reverse();
-  const maxWpm = Math.max(...chartData.map((d) => d.wpm), 100);
+  const [chartMetric, setChartMetric] = useState<'net' | 'net_raw' | 'net_acc'>('net_raw');
+
+  const chartData = useMemo(() => {
+    return [...filteredHistory].reverse().map((d, index) => {
+      const dateObj = new Date(d.timestamp);
+      const dateFormatted = dateObj.toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+      });
+      const timeFormatted = dateObj.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      return {
+        id: d.testId,
+        testIndex: index + 1,
+        label: `#${index + 1}`,
+        fullLabel: `Test #${index + 1}`,
+        dateTime: `${dateFormatted} ${timeFormatted}`,
+        wpm: d.wpm,
+        rawWpm: d.rawWpm,
+        accuracy: d.accuracy,
+        cpm: d.cpm,
+        errors: d.errors,
+        duration: d.duration,
+        difficulty: d.difficulty,
+        textType: d.textType,
+        isPersonalBest: d.isPersonalBest,
+      };
+    });
+  }, [filteredHistory]);
+
+  const growthDiff = useMemo(() => {
+    if (chartData.length < 2) return 0;
+    return chartData[chartData.length - 1].wpm - chartData[0].wpm;
+  }, [chartData]);
+
+  const averageWpm = useMemo(() => {
+    if (chartData.length === 0) return 0;
+    const sum = chartData.reduce((acc, curr) => acc + curr.wpm, 0);
+    return Math.round(sum / chartData.length);
+  }, [chartData]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
@@ -186,106 +266,317 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
             <Keyboard className="w-3.5 h-3.5" />
             <span>Key Heatmap</span>
           </button>
-        </div>
-
-        {/* Date Filters */}
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
-          <ListFilter className="w-4 h-4 text-slate-400" />
-          <span>Range:</span>
-          {(['all', '7days', '30days'] as FilterRange[]).map((range) => (
-            <button
-              key={range}
-              onClick={() => setFilterRange(range)}
-              className={`px-2.5 py-1 rounded-lg border transition-colors ${
-                filterRange === range
-                  ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 font-bold'
-                  : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+          <button
+            onClick={() => setViewMode('trophies')}
+            className={`py-1.5 px-3 rounded-lg transition-all flex items-center gap-1.5 ${
+              viewMode === 'trophies'
+                ? 'bg-amber-500 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+            <span>Trophies</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                viewMode === 'trophies'
+                  ? 'bg-white/20 text-white'
+                  : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
               }`}
             >
-              {range === 'all' ? 'All Time' : range === '7days' ? 'Last 7 Days' : 'Last 30 Days'}
-            </button>
-          ))}
+              {unlockedTrophyCount}/{achievements.length}
+            </span>
+          </button>
         </div>
+
+        {/* Date Filters (hidden in trophies mode) */}
+        {viewMode !== 'trophies' && (
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <ListFilter className="w-4 h-4 text-slate-400" />
+            <span>Range:</span>
+            {(['all', '7days', '30days'] as FilterRange[]).map((range) => (
+              <button
+                key={range}
+                onClick={() => setFilterRange(range)}
+                className={`px-2.5 py-1 rounded-lg border transition-colors ${
+                  filterRange === range
+                    ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 font-bold'
+                    : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+              >
+                {range === 'all' ? 'All Time' : range === '7days' ? 'Last 7 Days' : 'Last 30 Days'}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Chart View */}
+      {/* Trophies & Achievements View */}
+      {viewMode === 'trophies' && (
+        <TrophiesView stats={stats} history={history} onStartTest={onStartTest} />
+      )}
+
+      {/* Chart View (Recharts Line Chart) */}
       {viewMode === 'chart' && (
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-500" />
-              WPM Progression Trend
-            </h3>
-            <span className="text-xs text-slate-400 font-mono">
-              {chartData.length} data point{chartData.length === 1 ? '' : 's'}
-            </span>
+        <div className="p-6 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
+          {/* Header with Title and Mode Toggles */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700/60 pb-4">
+            <div>
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span>WPM Progression Over Time</span>
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Visualizing typing speed velocity and accuracy growth across test sessions
+              </p>
+            </div>
+
+            {/* Metric Mode Filter */}
+            {chartData.length > 0 && (
+              <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold shrink-0">
+                <button
+                  onClick={() => setChartMetric('net')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    chartMetric === 'net'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Net WPM
+                </button>
+                <button
+                  onClick={() => setChartMetric('net_raw')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    chartMetric === 'net_raw'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Net vs Raw
+                </button>
+                <button
+                  onClick={() => setChartMetric('net_acc')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    chartMetric === 'net_acc'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  WPM &amp; Accuracy
+                </button>
+              </div>
+            )}
           </div>
 
-          {chartData.length < 2 ? (
-            <div className="py-12 text-center text-sm text-slate-400">
-              Complete at least 2 tests to display a progression trend line graph.
+          {/* Quick Metrics Bar */}
+          {chartData.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block font-sans">First Test</span>
+                <span className="text-base font-extrabold text-slate-800 dark:text-slate-200">
+                  {chartData[0]?.wpm ?? 0} WPM
+                </span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block font-sans">Latest Speed</span>
+                <span className="text-base font-extrabold text-blue-600 dark:text-blue-400">
+                  {chartData[chartData.length - 1]?.wpm ?? 0} WPM
+                </span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block font-sans">Range Average</span>
+                <span className="text-base font-extrabold text-amber-600 dark:text-amber-400">
+                  {averageWpm} WPM
+                </span>
+              </div>
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block font-sans">Progression</span>
+                <span className={`text-base font-extrabold ${
+                  growthDiff >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                }`}>
+                  {growthDiff >= 0 ? `+${growthDiff}` : growthDiff} WPM
+                </span>
+              </div>
+            </div>
+          )}
+
+          {chartData.length === 0 ? (
+            <div className="py-16 text-center space-y-3">
+              <Calendar className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-base font-bold text-slate-700 dark:text-slate-300">No test data available for chart</p>
+              <p className="text-xs text-slate-500">Take a typing test to start plotting your WPM progression line chart.</p>
             </div>
           ) : (
-            <div className="w-full h-64 relative pt-4 pb-8">
-              {/* SVG Trend Line Graph */}
-              <svg className="w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
-                {/* Horizontal Grid lines */}
-                {[0, 25, 50, 75, 100].map((val) => {
-                  const y = 100 - (val / 100) * 100;
-                  return (
-                    <g key={val}>
-                      <line
-                        x1="0"
-                        y1={y}
-                        x2="100"
-                        y2={y}
-                        className="stroke-slate-100 dark:stroke-slate-700/50"
-                        strokeDasharray="2"
-                        strokeWidth="0.5"
-                      />
-                      <text
-                        x="0"
-                        y={Math.max(4, y - 2)}
-                        className="fill-slate-400 text-[3.5px] font-mono"
-                      >
-                        {val} WPM
-                      </text>
-                    </g>
-                  );
-                })}
+            <div className="w-full">
+              {chartData.length === 1 && (
+                <div className="mb-4 p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/70 dark:border-blue-900/40 text-xs text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-blue-500 shrink-0" />
+                  <span>1 test completed ({chartData[0].wpm} WPM). Complete more tests to see a multi-point trendline.</span>
+                </div>
+              )}
 
-                {/* Trend Polyline */}
-                <polyline
-                  fill="none"
-                  stroke="#2563eb"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  points={chartData
-                    .map((d, index) => {
-                      const x = (index / (chartData.length - 1)) * 100;
-                      const y = 100 - (Math.min(d.wpm, maxWpm) / maxWpm) * 100;
-                      return `${x},${y}`;
-                    })
-                    .join(' ')}
-                />
+              <div className="w-full h-80 pt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 15, right: chartMetric === 'net_acc' ? 25 : 15, left: 0, bottom: 15 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#94a3b8"
+                      strokeOpacity={0.2}
+                      vertical={false}
+                    />
 
-                {/* Data Points */}
-                {chartData.map((d, index) => {
-                  const x = (index / (chartData.length - 1)) * 100;
-                  const y = 100 - (Math.min(d.wpm, maxWpm) / maxWpm) * 100;
-                  return (
-                    <g key={d.testId} className="group">
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="2.5"
-                        className="fill-blue-600 stroke-white dark:stroke-slate-800 stroke-[0.8] cursor-pointer"
+                    <XAxis
+                      dataKey="label"
+                      tickLine={false}
+                      axisLine={{ stroke: '#94a3b8', strokeOpacity: 0.3 }}
+                      tick={{ fill: '#94a3b8', fontSize: 11, fontFamily: 'monospace' }}
+                      dy={8}
+                    />
+
+                    <YAxis
+                      yAxisId="wpm"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: '#94a3b8', fontSize: 11, fontFamily: 'monospace' }}
+                      dx={-4}
+                      unit=" wpm"
+                      domain={[0, (dataMax: number) => Math.max(Math.ceil((dataMax + 10) / 10) * 10, 60)]}
+                    />
+
+                    {chartMetric === 'net_acc' && (
+                      <YAxis
+                        yAxisId="accuracy"
+                        orientation="right"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fill: '#10b981', fontSize: 11, fontFamily: 'monospace' }}
+                        dx={4}
+                        unit="%"
+                        domain={[60, 100]}
                       />
-                    </g>
-                  );
-                })}
-              </svg>
+                    )}
+
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (!active || !payload || !payload.length) return null;
+                        const item = payload[0].payload;
+                        return (
+                          <div className="p-3.5 rounded-2xl bg-slate-900/95 dark:bg-slate-950/95 text-white border border-slate-700/80 shadow-2xl backdrop-blur-md min-w-[210px] text-xs space-y-2 font-sans">
+                            <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                              <span className="font-extrabold text-white text-sm">{item.fullLabel}</span>
+                              {item.isPersonalBest && (
+                                <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30 flex items-center gap-1">
+                                  <span>PB</span>
+                                  <Trophy className="w-3 h-3 text-amber-400" />
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="text-[11px] text-slate-400 font-mono">{item.dateTime}</div>
+
+                            <div className="space-y-1 pt-1 font-mono">
+                              <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-400 flex items-center gap-1.5">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block" />
+                                  <span className="font-sans">Net WPM</span>
+                                </span>
+                                <span className="font-black text-blue-400 text-sm">{item.wpm} WPM</span>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-400 flex items-center gap-1.5">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 inline-block" />
+                                  <span className="font-sans">Raw WPM</span>
+                                </span>
+                                <span className="font-bold text-indigo-300">{item.rawWpm} WPM</span>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-400 flex items-center gap-1.5">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block" />
+                                  <span className="font-sans">Accuracy</span>
+                                </span>
+                                <span className="font-bold text-emerald-400">{item.accuracy}%</span>
+                              </div>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between capitalize">
+                              <span>{item.duration}s test</span>
+                              <span>{item.difficulty} • {item.textType}</span>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    />
+
+                    <Legend
+                      verticalAlign="top"
+                      align="right"
+                      wrapperStyle={{ paddingBottom: '12px', fontSize: '12px' }}
+                    />
+
+                    {averageWpm > 0 && (
+                      <ReferenceLine
+                        yAxisId="wpm"
+                        y={averageWpm}
+                        stroke="#f59e0b"
+                        strokeDasharray="4 4"
+                        strokeWidth={1.5}
+                        label={{
+                          value: `Avg ${averageWpm}`,
+                          fill: '#f59e0b',
+                          fontSize: 10,
+                          position: 'insideTopRight',
+                          offset: 8,
+                        }}
+                      />
+                    )}
+
+                    {/* Primary Net WPM Line */}
+                    <Line
+                      yAxisId="wpm"
+                      type="monotone"
+                      dataKey="wpm"
+                      name="Net WPM"
+                      stroke="#2563eb"
+                      strokeWidth={3}
+                      dot={{ r: 4, fill: '#2563eb', strokeWidth: 2, stroke: '#ffffff' }}
+                      activeDot={{ r: 7, fill: '#1d4ed8', strokeWidth: 2, stroke: '#ffffff' }}
+                    />
+
+                    {/* Raw WPM Line */}
+                    {chartMetric === 'net_raw' && (
+                      <Line
+                        yAxisId="wpm"
+                        type="monotone"
+                        dataKey="rawWpm"
+                        name="Raw WPM"
+                        stroke="#818cf8"
+                        strokeWidth={2}
+                        strokeDasharray="4 4"
+                        dot={{ r: 3, fill: '#818cf8', strokeWidth: 1, stroke: '#ffffff' }}
+                        activeDot={{ r: 5, fill: '#6366f1' }}
+                      />
+                    )}
+
+                    {/* Accuracy Line */}
+                    {chartMetric === 'net_acc' && (
+                      <Line
+                        yAxisId="accuracy"
+                        type="monotone"
+                        dataKey="accuracy"
+                        name="Accuracy (%)"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: '#10b981', strokeWidth: 1, stroke: '#ffffff' }}
+                        activeDot={{ r: 5, fill: '#059669' }}
+                      />
+                    )}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
         </div>

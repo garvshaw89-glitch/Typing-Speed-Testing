@@ -3,6 +3,12 @@ import { EASY_WORDS, MEDIUM_WORDS, HARD_WORDS } from '../data/wordLists';
 import { EASY_SENTENCES, MEDIUM_SENTENCES, HARD_SENTENCES } from '../data/sentences';
 import { EASY_CODE_SNIPPETS, MEDIUM_CODE_SNIPPETS, HARD_CODE_SNIPPETS } from '../data/codeSnippets';
 import { EASY_PARAGRAPHS, MEDIUM_PARAGRAPHS, HARD_PARAGRAPHS } from '../data/paragraphs';
+import { WARMUP_PASSAGES } from '../data/warmupTexts';
+
+export function generateWarmupText(): string {
+  const randomIndex = Math.floor(Math.random() * WARMUP_PASSAGES.length);
+  return WARMUP_PASSAGES[randomIndex];
+}
 
 export function generateTargetText(
   difficulty: DifficultyLevel,
