@@ -4,28 +4,67 @@ import { EASY_SENTENCES, MEDIUM_SENTENCES, HARD_SENTENCES } from '../data/senten
 import { EASY_CODE_SNIPPETS, MEDIUM_CODE_SNIPPETS, HARD_CODE_SNIPPETS } from '../data/codeSnippets';
 import { EASY_PARAGRAPHS, MEDIUM_PARAGRAPHS, HARD_PARAGRAPHS } from '../data/paragraphs';
 import { WARMUP_PASSAGES } from '../data/warmupTexts';
+import { QUOTES_DATABASE, QuoteItem } from '../data/quotes';
 
 export function generateWarmupText(): string {
   const randomIndex = Math.floor(Math.random() * WARMUP_PASSAGES.length);
   return WARMUP_PASSAGES[randomIndex];
 }
 
+export function getRandomQuote(): QuoteItem {
+  const randomIndex = Math.floor(Math.random() * QUOTES_DATABASE.length);
+  return QUOTES_DATABASE[randomIndex];
+}
+
+export function generateWordsText(
+  count: number,
+  difficulty: DifficultyLevel = 'medium',
+  includePunctuation: boolean = false,
+  includeNumbers: boolean = false
+): string {
+  let sourceWords = MEDIUM_WORDS;
+  if (difficulty === 'easy') sourceWords = EASY_WORDS;
+  if (difficulty === 'hard') sourceWords = HARD_WORDS;
+
+  const result: string[] = [];
+  const punctuationMarks = [',', '.', ';', '!', '?', '-', '"'];
+
+  for (let i = 0; i < count; i++) {
+    // Occasionally insert a number if requested
+    if (includeNumbers && Math.random() < 0.15) {
+      result.push(String(Math.floor(Math.random() * 900 + 10)));
+      continue;
+    }
+
+    const randomIndex = Math.floor(Math.random() * sourceWords.length);
+    let word = sourceWords[randomIndex];
+
+    if (includePunctuation && Math.random() < 0.25 && i > 0 && i < count - 1) {
+      const p = punctuationMarks[Math.floor(Math.random() * punctuationMarks.length)];
+      word = `${word}${p}`;
+    }
+
+    result.push(word);
+  }
+
+  // Ensure last word has a period if punctuation is enabled
+  if (includePunctuation && result.length > 0) {
+    const lastWord = result[result.length - 1].replace(/[,;!?-]/g, '');
+    result[result.length - 1] = `${lastWord}.`;
+  }
+
+  return result.join(' ');
+}
+
 export function generateTargetText(
   difficulty: DifficultyLevel,
   textType: TextType,
-  wordCountTarget: number = 100
+  wordCountTarget: number = 100,
+  includePunctuation: boolean = true,
+  includeNumbers: boolean = false
 ): string {
   if (textType === 'words') {
-    let sourceWords = MEDIUM_WORDS;
-    if (difficulty === 'easy') sourceWords = EASY_WORDS;
-    if (difficulty === 'hard') sourceWords = HARD_WORDS;
-
-    const result: string[] = [];
-    for (let i = 0; i < wordCountTarget; i++) {
-      const randomIndex = Math.floor(Math.random() * sourceWords.length);
-      result.push(sourceWords[randomIndex]);
-    }
-    return result.join(' ');
+    return generateWordsText(wordCountTarget, difficulty, includePunctuation, includeNumbers);
   }
 
   if (textType === 'sentences') {

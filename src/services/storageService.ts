@@ -5,8 +5,16 @@ const HISTORY_KEY = 'typingTest_history';
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
   testDuration: 60,
+  testMode: 'time',
+  wordCount: 50,
+  customDuration: 60,
+  customWordCount: 50,
   difficultyLevel: 'medium',
   textType: 'words',
+  includePunctuation: true,
+  includeNumbers: false,
+  zenMode: false,
+  username: 'SpeedTypist',
   theme: 'system',
   fontSize: 'medium',
   soundEffectsEnabled: true,
@@ -32,6 +40,14 @@ export function getPreferences(): UserPreferences {
     return {
       ...DEFAULT_PREFERENCES,
       ...parsed,
+      testMode: parsed.testMode || 'time',
+      wordCount: parsed.wordCount || 50,
+      customDuration: parsed.customDuration || 60,
+      customWordCount: parsed.customWordCount || 50,
+      includePunctuation: parsed.includePunctuation ?? true,
+      includeNumbers: parsed.includeNumbers ?? false,
+      zenMode: parsed.zenMode ?? false,
+      username: parsed.username || 'SpeedTypist',
       soundPack: parsed.soundPack || 'mechanical',
       soundVolume: typeof parsed.soundVolume === 'number' ? parsed.soundVolume : 0.8,
     };

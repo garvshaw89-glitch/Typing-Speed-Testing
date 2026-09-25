@@ -10,6 +10,8 @@ import { PreparationScreen } from './components/PreparationScreen';
 import { ActiveTestScreen } from './components/ActiveTestScreen';
 import { ResultsScreen } from './components/ResultsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
+import { LeaderboardView } from './components/LeaderboardView';
+import { BackgroundAura } from './components/BackgroundAura';
 import { SettingsModal } from './components/SettingsModal';
 import { HelpModal } from './components/HelpModal';
 import { TrophyCelebrationModal } from './components/TrophyCelebrationModal';
@@ -149,7 +151,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 selection:bg-blue-500 selection:text-white relative">
+      {/* GPU-Friendly Ambient Background Aura */}
+      <BackgroundAura reduceMotion={preferences.reduceMotion} />
+
       {/* Top Navigation Bar */}
       <Navbar
         currentScreen={screen}
@@ -177,6 +182,7 @@ export default function App() {
             onOpenSettings={() => setIsSettingsOpen(true)}
             onOpenHistory={() => handleOpenHistory('list')}
             onOpenTrophies={handleOpenTrophies}
+            onOpenLeaderboard={() => setScreen('leaderboard')}
           />
         )}
 
@@ -210,6 +216,7 @@ export default function App() {
             onNewTest={() => setIsSettingsOpen(true)}
             onViewHistory={() => handleOpenHistory('list')}
             onViewTrophies={handleOpenTrophies}
+            onViewLeaderboard={() => setScreen('leaderboard')}
             onShowToast={showToast}
           />
         )}
@@ -221,6 +228,13 @@ export default function App() {
             initialViewMode={historyInitialTab}
             onRefreshHistory={refreshHistoryAndStats}
             onBackToHome={() => setScreen('home')}
+            onStartTest={handleStartTest}
+            onShowToast={showToast}
+          />
+        )}
+
+        {screen === 'leaderboard' && (
+          <LeaderboardView
             onStartTest={handleStartTest}
             onShowToast={showToast}
           />
