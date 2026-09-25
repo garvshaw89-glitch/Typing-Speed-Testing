@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Waves, PauseCircle, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export interface KeystrokeRhythmPoint {
   id: number;
@@ -99,10 +100,10 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
     });
   }, [activeSlice, startIndex, step, averageIntervalMs, centerBaselineY, svgHeight]);
 
-  // Generate smooth SVG path string using cubic Bezier spline
-  const { linePath, areaPath } = useMemo(() => {
+  // Generate smooth SVG path strings using cubic Bezier spline
+  const { linePath, areaPath, leadSegmentPath, latestPoint } = useMemo(() => {
     if (plottedPoints.length < 2) {
-      return { linePath: '', areaPath: '' };
+      return { linePath: '', areaPath: '', leadSegmentPath: '', latestPoint: plottedPoints[0] || null };
     }
 
     let d = `M ${plottedPoints[0].x} ${plottedPoints[0].y}`;
@@ -125,7 +126,17 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
     const lastPt = plottedPoints[plottedPoints.length - 1];
     const fillD = `${d} L ${lastPt.x} ${svgHeight - 4} L ${firstPt.x} ${svgHeight - 4} Z`;
 
-    return { linePath: d, areaPath: fillD };
+    // Compute isolated curve for the newest segment to animate growth with Framer Motion pathLength
+    const prevPt = plottedPoints[plottedPoints.length - 2];
+    const prePrevPt = plottedPoints.length >= 3 ? plottedPoints[plottedPoints.length - 3] : prevPt;
+    const lcp1x = prevPt.x + (lastPt.x - prePrevPt.x) / 6;
+    const lcp1y = prevPt.y + (lastPt.y - prePrevPt.y) / 6;
+    const lcp2x = lastPt.x - (lastPt.x - prevPt.x) / 6;
+    const lcp2y = lastPt.y - (lastPt.y - prevPt.y) / 6;
+
+    const segmentD = `M ${prevPt.x} ${prevPt.y} C ${lcp1x.toFixed(1)} ${lcp1y.toFixed(1)}, ${lcp2x.toFixed(1)} ${lcp2y.toFixed(1)}, ${lastPt.x} ${lastPt.y}`;
+
+    return { linePath: d, areaPath: fillD, leadSegmentPath: segmentD, latestPoint: lastPt };
   }, [plottedPoints, svgHeight]);
 
   // Derive rhythm stability state
@@ -249,18 +260,28 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
         </div>
       </div>
 
-      {/* Explanation Banner (Collapsible) */}
-      {showExplanation && (
-        <div className="mb-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 flex items-start gap-2 animate-fade-in">
-          <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-semibold text-slate-900 dark:text-white">How to read the rhythm graph: </span>
-            A flat, steady line in the green corridor means metronomic speed and relaxed fingers.
-            Downward dips and amber dots mark pauses, hesitation on difficult keys, or rhythm breaks.
-            Smooth typing beats frantic bursts!
-          </div>
-        </div>
-      )}
+      {/* Explanation Banner (Collapsible with smooth height/opacity animation) */}
+      <AnimatePresence>
+        {showExplanation && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginBottom: 10 }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 flex items-start gap-2">
+              <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-semibold text-slate-900 dark:text-white">How to read the rhythm graph: </span>
+                A flat, steady line in the green corridor means metronomic speed and relaxed fingers.
+                Downward dips and amber dots mark pauses, hesitation on difficult keys, or rhythm breaks.
+                Smooth typing beats frantic bursts!
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Real-time SVG Graph Container */}
       <div className="relative w-full h-14 sm:h-16 rounded-xl bg-slate-50/90 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-700/70 overflow-hidden flex items-center justify-center">
@@ -345,25 +366,29 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
             />
           )}
 
-          {/* Dynamic Plot Group with Hardware-Accelerated Sliding Window Animation */}
+          {/* Dynamic Plot Group with Framer Motion Spring Sliding Window Animation */}
           <g clipPath="url(#rhythmPlotClip)">
-            <g
-              style={{
-                transform: `translateX(${translateX}px)`,
-                transition: reduceMotion ? 'none' : 'transform 130ms cubic-bezier(0.16, 1, 0.3, 1)',
-                willChange: 'transform',
-              }}
+            <motion.g
+              animate={{ x: translateX }}
+              transition={
+                reduceMotion
+                  ? { duration: 0 }
+                  : { type: 'spring', stiffness: 340, damping: 32, mass: 0.65 }
+              }
+              style={{ willChange: 'transform' }}
             >
-              {/* Active Area Gradient */}
+              {/* Active Area Gradient with smooth fade */}
               {areaPath && (
-                <path
+                <motion.path
                   d={areaPath}
                   fill="url(#rhythmAreaGradient)"
-                  className={reduceMotion ? '' : 'transition-opacity duration-150'}
+                  initial={{ opacity: 0.6 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.12 }}
                 />
               )}
 
-              {/* Active Rhythm Sparkline Curve */}
+              {/* Full Base Rhythm Sparkline Curve */}
               {linePath && (
                 <path
                   d={linePath}
@@ -372,7 +397,27 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={reduceMotion ? '' : 'transition-all duration-75'}
+                  className="transition-opacity duration-100"
+                />
+              )}
+
+              {/* Animated Leading Edge Path Segment (grows smoothly with Framer Motion pathLength) */}
+              {leadSegmentPath && latestPoint && (
+                <motion.path
+                  key={`lead-${latestPoint.id}`}
+                  d={leadSegmentPath}
+                  fill="none"
+                  stroke="url(#rhythmLineGradient)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={reduceMotion ? false : { pathLength: 0, opacity: 0.8 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={
+                    reduceMotion
+                      ? { duration: 0 }
+                      : { duration: 0.11, ease: [0.22, 1, 0.36, 1] }
+                  }
                 />
               )}
 
@@ -395,15 +440,22 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
                 </g>
               )}
 
-              {/* Keystroke Data Points and Pause Markers */}
+              {/* Keystroke Data Points and Animated Pause Markers */}
               {plottedPoints.map((pt) => {
                 const isHovered = hoveredPoint?.id === pt.id;
 
                 if (pt.isPause) {
                   return (
-                    <g
+                    <motion.g
                       key={pt.id}
-                      className={`cursor-pointer ${reduceMotion ? '' : 'animate-pop-in'}`}
+                      initial={reduceMotion ? false : { scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { type: 'spring', stiffness: 550, damping: 22 }
+                      }
+                      className="cursor-pointer"
                       onMouseEnter={() => {
                         setHoveredPoint(pt);
                         setHoverPos({ x: pt.x + translateX, y: pt.y });
@@ -430,7 +482,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
                             : 'fill-amber-500 stroke-amber-200 dark:stroke-amber-900'
                         } stroke-1.5 transition-transform`}
                       />
-                    </g>
+                    </motion.g>
                   );
                 }
 
@@ -455,24 +507,32 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
                 );
               })}
 
-              {/* Current Leading Edge Pulsing Dot */}
-              {plottedPoints.length > 0 && !isCurrentlyPausing && (
+              {/* Current Leading Edge Gliding Spring Dot */}
+              {latestPoint && !isCurrentlyPausing && (
                 <g>
-                  <circle
-                    cx={plottedPoints[plottedPoints.length - 1].x}
-                    cy={plottedPoints[plottedPoints.length - 1].y}
+                  <motion.circle
+                    animate={{ cx: latestPoint.x, cy: latestPoint.y }}
+                    transition={
+                      reduceMotion
+                        ? { duration: 0 }
+                        : { type: 'spring', stiffness: 480, damping: 30, mass: 0.5 }
+                    }
                     r="4.5"
                     className="fill-teal-500 dark:fill-teal-400 stroke-white dark:stroke-slate-900 stroke-1.5"
                   />
-                  <circle
-                    cx={plottedPoints[plottedPoints.length - 1].x}
-                    cy={plottedPoints[plottedPoints.length - 1].y}
+                  <motion.circle
+                    animate={{ cx: latestPoint.x, cy: latestPoint.y }}
+                    transition={
+                      reduceMotion
+                        ? { duration: 0 }
+                        : { type: 'spring', stiffness: 480, damping: 30, mass: 0.5 }
+                    }
                     r="8"
                     className="fill-transparent stroke-teal-400/60 dark:stroke-teal-300/60 stroke-1.5 animate-ping-once"
                   />
                 </g>
               )}
-            </g>
+            </motion.g>
           </g>
         </svg>
 
@@ -486,37 +546,51 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
           </div>
         )}
 
-        {/* Live Active Pause Pill Overlay */}
-        {isCurrentlyPausing && (
-          <div className="absolute bottom-1 right-2 pointer-events-none flex items-center gap-1 py-0.5 px-2 rounded-md bg-rose-500/90 text-white font-mono text-[10px] font-bold shadow-xs animate-fade-in">
-            <PauseCircle className="w-3 h-3 animate-spin" />
-            <span>Pause Break: {(activePauseMs / 1000).toFixed(1)}s</span>
-          </div>
-        )}
+        {/* Live Active Pause Pill Overlay with Framer Motion AnimatePresence */}
+        <AnimatePresence>
+          {isCurrentlyPausing && (
+            <motion.div
+              initial={{ opacity: 0, y: 4, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: 0.94 }}
+              transition={{ duration: 0.15 }}
+              className="absolute bottom-1 right-2 pointer-events-none flex items-center gap-1 py-0.5 px-2 rounded-md bg-rose-500/90 text-white font-mono text-[10px] font-bold shadow-xs"
+            >
+              <PauseCircle className="w-3 h-3 animate-spin" />
+              <span>Pause Break: {(activePauseMs / 1000).toFixed(1)}s</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Interactive Hover Tooltip */}
-        {hoveredPoint && hoverPos && (
-          <div
-            className="absolute z-20 pointer-events-none py-1 px-2 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-mono shadow-lg transition-transform transform -translate-x-1/2 -translate-y-full mb-1 flex items-center gap-1.5 whitespace-nowrap"
-            style={{
-              left: `${Math.max(8, Math.min(92, (hoverPos.x / svgWidth) * 100))}%`,
-              top: `${Math.max(16, (hoverPos.y / svgHeight) * 100)}%`,
-            }}
-          >
-            <span className="font-bold underline decoration-blue-400">
-              '{hoveredPoint.char === ' ' ? 'Space' : hoveredPoint.char}'
-            </span>
-            <span>·</span>
-            <span>{hoveredPoint.intervalMs}ms</span>
-            <span>·</span>
-            <span>{hoveredPoint.instantWpm} WPM</span>
-            {hoveredPoint.isPause && (
-              <span className="font-bold text-amber-300 dark:text-amber-600">
-                ({hoveredPoint.isSeverePause ? 'Long Pause' : 'Hesitation'})
+        {/* Interactive Hover Tooltip with Framer Motion AnimatePresence */}
+        <AnimatePresence>
+          {hoveredPoint && hoverPos && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 3 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 3 }}
+              transition={{ duration: 0.1 }}
+              className="absolute z-20 pointer-events-none py-1 px-2 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-mono shadow-lg -translate-x-1/2 -translate-y-full mb-1 flex items-center gap-1.5 whitespace-nowrap"
+              style={{
+                left: `${Math.max(8, Math.min(92, (hoverPos.x / svgWidth) * 100))}%`,
+                top: `${Math.max(16, (hoverPos.y / svgHeight) * 100)}%`,
+              }}
+            >
+              <span className="font-bold underline decoration-blue-400">
+                '{hoveredPoint.char === ' ' ? 'Space' : hoveredPoint.char}'
               </span>
-            )}
-          </div>
-        )}
+              <span>·</span>
+              <span>{hoveredPoint.intervalMs}ms</span>
+              <span>·</span>
+              <span>{hoveredPoint.instantWpm} WPM</span>
+              {hoveredPoint.isPause && (
+                <span className="font-bold text-amber-300 dark:text-amber-600">
+                  ({hoveredPoint.isSeverePause ? 'Long Pause' : 'Hesitation'})
+                </span>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Bottom Sub-legend / Quick Guidance */}
@@ -537,7 +611,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
         </div>
 
         <span className="hidden sm:inline text-slate-400/80">
-          Real-time 60fps streaming telemetry
+          Fluid Framer Motion telemetry
         </span>
       </div>
     </section>
