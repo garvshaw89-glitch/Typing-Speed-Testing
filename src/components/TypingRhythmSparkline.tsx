@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Activity, Waves, PauseCircle, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { Waves, PauseCircle, Info } from 'lucide-react';
 
 export interface KeystrokeRhythmPoint {
   id: number;
@@ -42,29 +42,39 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
   const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
 
-  // Consider the last 36 keystrokes for smooth rolling window
-  const windowPoints = useMemo(() => {
-    return points.slice(-36);
-  }, [points]);
-
-  // Graph SVG Dimensions
+  // Viewport and Geometry Configuration
   const svgWidth = 520;
   const svgHeight = 60;
   const paddingLeft = 14;
   const paddingRight = 20;
-  const plotWidth = svgWidth - paddingLeft - paddingRight;
+  const plotWidth = svgWidth - paddingLeft - paddingRight; // 486px
   const centerBaselineY = 28;
 
-  // Compute curve coordinates
-  const plottedPoints = useMemo(() => {
-    if (windowPoints.length === 0) return [];
+  // Window sizing for streaming animation
+  const VISIBLE_COUNT = 32;
+  const step = plotWidth / (VISIBLE_COUNT - 1); // ~15.68px per keystroke step
 
-    const count = windowPoints.length;
-    return windowPoints.map((pt, index) => {
-      const x =
-        count === 1
-          ? paddingLeft + plotWidth / 2
-          : paddingLeft + (index / (count - 1)) * plotWidth;
+  const totalPoints = points.length;
+  // Slice to visible window plus buffer to maintain ultra-light DOM & GPU footprint
+  const bufferCount = VISIBLE_COUNT + 8;
+  const startIndex = Math.max(0, totalPoints - bufferCount);
+  const activeSlice = useMemo(() => {
+    return points.slice(startIndex);
+  }, [points, startIndex]);
+
+  // Compute smooth translational offset for GPU-accelerated horizontal gliding
+  const translateX = useMemo(() => {
+    if (totalPoints <= VISIBLE_COUNT) return 0;
+    return -Math.round((totalPoints - VISIBLE_COUNT) * step * 10) / 10;
+  }, [totalPoints, VISIBLE_COUNT, step]);
+
+  // Compute coordinates for rendered points
+  const plottedPoints = useMemo(() => {
+    if (activeSlice.length === 0) return [];
+
+    return activeSlice.map((pt, sliceIdx) => {
+      const globalIndex = startIndex + sliceIdx;
+      const x = paddingLeft + globalIndex * step;
 
       const baseAvg = Math.max(70, pt.rollingAvgIntervalMs || averageIntervalMs || 180);
       const ratio = pt.intervalMs / baseAvg;
@@ -87,7 +97,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
         y: Math.round(y * 10) / 10,
       };
     });
-  }, [windowPoints, averageIntervalMs, plotWidth, paddingLeft, centerBaselineY, svgHeight]);
+  }, [activeSlice, startIndex, step, averageIntervalMs, centerBaselineY, svgHeight]);
 
   // Generate smooth SVG path string using cubic Bezier spline
   const { linePath, areaPath } = useMemo(() => {
@@ -102,7 +112,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
       const p2 = plottedPoints[i + 1];
       const p3 = plottedPoints[i + 2 < plottedPoints.length ? i + 2 : i + 1];
 
-      // Catmull-Rom to Cubic Bezier conversion
+      // Catmull-Rom to Cubic Bezier conversion for fluid curve
       const cp1x = p1.x + (p2.x - p0.x) / 6;
       const cp1y = p1.y + (p2.y - p0.y) / 6;
       const cp2x = p2.x - (p3.x - p1.x) / 6;
@@ -241,7 +251,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
 
       {/* Explanation Banner (Collapsible) */}
       {showExplanation && (
-        <div className="mb-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 flex items-start gap-2">
+        <div className="mb-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 flex items-start gap-2 animate-fade-in">
           <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
           <div>
             <span className="font-semibold text-slate-900 dark:text-white">How to read the rhythm graph: </span>
@@ -260,6 +270,16 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
           preserveAspectRatio="none"
         >
           <defs>
+            {/* Horizontal Plot Window Clip Path */}
+            <clipPath id="rhythmPlotClip">
+              <rect
+                x={paddingLeft - 2}
+                y="0"
+                width={plotWidth + 4}
+                height={svgHeight}
+              />
+            </clipPath>
+
             {/* Area Fill Gradient */}
             <linearGradient id="rhythmAreaGradient" x1="0" y1="0" x2="0" y2="1">
               <stop
@@ -281,7 +301,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
             </linearGradient>
           </defs>
 
-          {/* Harmonic Cadence Corridor (Steady Zone) */}
+          {/* Harmonic Cadence Corridor (Steady Zone - Static Background) */}
           <rect
             x={paddingLeft}
             y={centerBaselineY - 9}
@@ -291,7 +311,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
             rx="4"
           />
 
-          {/* Central Target Guideline */}
+          {/* Central Target Guideline (Static Baseline) */}
           <line
             x1={paddingLeft}
             y1={centerBaselineY}
@@ -301,7 +321,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
             className="stroke-slate-300 dark:stroke-slate-700/80 stroke-1"
           />
 
-          {/* Guideline Labels (Subtle) */}
+          {/* Static Guideline Labels */}
           <text
             x={paddingLeft + 4}
             y={centerBaselineY - 11}
@@ -325,120 +345,135 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
             />
           )}
 
-          {/* Active Area Gradient */}
-          {areaPath && (
-            <path d={areaPath} fill="url(#rhythmAreaGradient)" className="transition-opacity duration-150" />
-          )}
+          {/* Dynamic Plot Group with Hardware-Accelerated Sliding Window Animation */}
+          <g clipPath="url(#rhythmPlotClip)">
+            <g
+              style={{
+                transform: `translateX(${translateX}px)`,
+                transition: reduceMotion ? 'none' : 'transform 130ms cubic-bezier(0.16, 1, 0.3, 1)',
+                willChange: 'transform',
+              }}
+            >
+              {/* Active Area Gradient */}
+              {areaPath && (
+                <path
+                  d={areaPath}
+                  fill="url(#rhythmAreaGradient)"
+                  className={reduceMotion ? '' : 'transition-opacity duration-150'}
+                />
+              )}
 
-          {/* Active Rhythm Sparkline Curve */}
-          {linePath && (
-            <path
-              d={linePath}
-              fill="none"
-              stroke="url(#rhythmLineGradient)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={reduceMotion ? '' : 'transition-all duration-75'}
-            />
-          )}
+              {/* Active Rhythm Sparkline Curve */}
+              {linePath && (
+                <path
+                  d={linePath}
+                  fill="none"
+                  stroke="url(#rhythmLineGradient)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={reduceMotion ? '' : 'transition-all duration-75'}
+                />
+              )}
 
-          {/* Active Pause Visual Extender: When user stops typing mid-test */}
-          {isCurrentlyPausing && plottedPoints.length > 0 && (
-            <g className="animate-pulse">
-              <line
-                x1={plottedPoints[plottedPoints.length - 1].x}
-                y1={plottedPoints[plottedPoints.length - 1].y}
-                x2={Math.min(svgWidth - paddingRight, plottedPoints[plottedPoints.length - 1].x + 16)}
-                y2={svgHeight - 10}
-                className="stroke-rose-500 dark:stroke-rose-400 stroke-2 stroke-dasharray-[2_2]"
-              />
-              <circle
-                cx={Math.min(svgWidth - paddingRight, plottedPoints[plottedPoints.length - 1].x + 16)}
-                cy={svgHeight - 10}
-                r="4"
-                className="fill-rose-500"
-              />
-            </g>
-          )}
-
-          {/* Keystroke Data Points and Pause Markers */}
-          {plottedPoints.map((pt) => {
-            const isHovered = hoveredPoint?.id === pt.id;
-
-            if (pt.isPause) {
-              return (
-                <g
-                  key={pt.id}
-                  className="cursor-pointer"
-                  onMouseEnter={(e) => {
-                    setHoveredPoint(pt);
-                    setHoverPos({ x: pt.x, y: pt.y });
-                  }}
-                  onMouseLeave={() => setHoveredPoint(null)}
-                >
-                  {/* Subtle outer halo on severe pauses */}
-                  {pt.isSeverePause && (
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r="7"
-                      className="fill-rose-500/20 stroke-rose-500/50 stroke-1 animate-pulse"
-                    />
-                  )}
-                  {/* Main pause dot marker */}
+              {/* Active Pause Visual Extender: When user stops typing mid-test */}
+              {isCurrentlyPausing && plottedPoints.length > 0 && (
+                <g className="animate-pulse">
+                  <line
+                    x1={plottedPoints[plottedPoints.length - 1].x}
+                    y1={plottedPoints[plottedPoints.length - 1].y}
+                    x2={plottedPoints[plottedPoints.length - 1].x + 16}
+                    y2={svgHeight - 10}
+                    className="stroke-rose-500 dark:stroke-rose-400 stroke-2 stroke-dasharray-[2_2]"
+                  />
                   <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r={isHovered ? '5' : '3.5'}
-                    className={`${
-                      pt.isSeverePause
-                        ? 'fill-rose-500 stroke-rose-200 dark:stroke-rose-900'
-                        : 'fill-amber-500 stroke-amber-200 dark:stroke-amber-900'
-                    } stroke-1.5 transition-transform`}
+                    cx={plottedPoints[plottedPoints.length - 1].x + 16}
+                    cy={svgHeight - 10}
+                    r="4"
+                    className="fill-rose-500"
                   />
                 </g>
-              );
-            }
+              )}
 
-            // Normal point: subtle hover hitbox
-            return (
-              <circle
-                key={pt.id}
-                cx={pt.x}
-                cy={pt.y}
-                r={isHovered ? '4' : '2'}
-                className={`${
-                  isHovered
-                    ? 'fill-blue-500 stroke-white dark:stroke-slate-900 stroke-1.5'
-                    : 'fill-transparent hover:fill-teal-500/60'
-                } transition-all cursor-pointer`}
-                onMouseEnter={() => {
-                  setHoveredPoint(pt);
-                  setHoverPos({ x: pt.x, y: pt.y });
-                }}
-                onMouseLeave={() => setHoveredPoint(null)}
-              />
-            );
-          })}
+              {/* Keystroke Data Points and Pause Markers */}
+              {plottedPoints.map((pt) => {
+                const isHovered = hoveredPoint?.id === pt.id;
 
-          {/* Current Leading Edge Pulsing Dot */}
-          {plottedPoints.length > 0 && !isCurrentlyPausing && (
-            <g>
-              <circle
-                cx={plottedPoints[plottedPoints.length - 1].x}
-                cy={plottedPoints[plottedPoints.length - 1].y}
-                r="4.5"
-                className="fill-teal-500 dark:fill-teal-400 stroke-white dark:stroke-slate-900 stroke-1.5"
-              />
-              <circle
-                cx={plottedPoints[plottedPoints.length - 1].x}
-                cy={plottedPoints[plottedPoints.length - 1].y}
-                r="7"
-                className="fill-transparent stroke-teal-400/50 dark:stroke-teal-300/50 stroke-1 animate-ping-once"
-              />
+                if (pt.isPause) {
+                  return (
+                    <g
+                      key={pt.id}
+                      className={`cursor-pointer ${reduceMotion ? '' : 'animate-pop-in'}`}
+                      onMouseEnter={() => {
+                        setHoveredPoint(pt);
+                        setHoverPos({ x: pt.x + translateX, y: pt.y });
+                      }}
+                      onMouseLeave={() => setHoveredPoint(null)}
+                    >
+                      {/* Subtle outer halo on severe pauses */}
+                      {pt.isSeverePause && (
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r="7"
+                          className="fill-rose-500/20 stroke-rose-500/50 stroke-1 animate-pulse"
+                        />
+                      )}
+                      {/* Main pause dot marker */}
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={isHovered ? '5' : '3.5'}
+                        className={`${
+                          pt.isSeverePause
+                            ? 'fill-rose-500 stroke-rose-200 dark:stroke-rose-900'
+                            : 'fill-amber-500 stroke-amber-200 dark:stroke-amber-900'
+                        } stroke-1.5 transition-transform`}
+                      />
+                    </g>
+                  );
+                }
+
+                // Normal point: subtle hover hitbox
+                return (
+                  <circle
+                    key={pt.id}
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={isHovered ? '4' : '2'}
+                    className={`${
+                      isHovered
+                        ? 'fill-blue-500 stroke-white dark:stroke-slate-900 stroke-1.5'
+                        : 'fill-transparent hover:fill-teal-500/60'
+                    } transition-all cursor-pointer`}
+                    onMouseEnter={() => {
+                      setHoveredPoint(pt);
+                      setHoverPos({ x: pt.x + translateX, y: pt.y });
+                    }}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                  />
+                );
+              })}
+
+              {/* Current Leading Edge Pulsing Dot */}
+              {plottedPoints.length > 0 && !isCurrentlyPausing && (
+                <g>
+                  <circle
+                    cx={plottedPoints[plottedPoints.length - 1].x}
+                    cy={plottedPoints[plottedPoints.length - 1].y}
+                    r="4.5"
+                    className="fill-teal-500 dark:fill-teal-400 stroke-white dark:stroke-slate-900 stroke-1.5"
+                  />
+                  <circle
+                    cx={plottedPoints[plottedPoints.length - 1].x}
+                    cy={plottedPoints[plottedPoints.length - 1].y}
+                    r="8"
+                    className="fill-transparent stroke-teal-400/60 dark:stroke-teal-300/60 stroke-1.5 animate-ping-once"
+                  />
+                </g>
+              )}
             </g>
-          )}
+          </g>
         </svg>
 
         {/* Resting Prompt Text */}
@@ -464,7 +499,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
           <div
             className="absolute z-20 pointer-events-none py-1 px-2 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[10px] font-mono shadow-lg transition-transform transform -translate-x-1/2 -translate-y-full mb-1 flex items-center gap-1.5 whitespace-nowrap"
             style={{
-              left: `${(hoverPos.x / svgWidth) * 100}%`,
+              left: `${Math.max(8, Math.min(92, (hoverPos.x / svgWidth) * 100))}%`,
               top: `${Math.max(16, (hoverPos.y / svgHeight) * 100)}%`,
             }}
           >
@@ -502,7 +537,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
         </div>
 
         <span className="hidden sm:inline text-slate-400/80">
-          Last 35 keystrokes
+          Real-time 60fps streaming telemetry
         </span>
       </div>
     </section>
