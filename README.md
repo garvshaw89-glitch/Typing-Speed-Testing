@@ -8,7 +8,7 @@
   <br/>
 
   <!-- 3D Animated Cyber Terminal Output Stream -->
-  <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
+  <a href="https://typing-speed-testing-kappa.vercel.app/" target="_blank" rel="noopener noreferrer">
     <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=19&duration=2400&pause=1000&color=38BDF8&center=true&vCenter=true&multiline=false&width=820&height=48&lines=%E2%9A%A1+1000Hz+Keystroke+Physics+Engine%3A+Net+WPM%2C+CPM+%26+Error+Penalties;%E2%8C%A8%EF%B8%8F+3D+Tactile+Ergonomic+Keyboard+%26+Color-Coded+Finger+Heatmap;%F0%9F%8E%AF+Adaptive+Target+WPM+Pace+Challenger+%2B+Web+Audio+Synthesizer;%F0%9F%93%B1+Zero-Lag+Mobile+Touch+Focus+Engine%3A+iOS+%26+Android+Optimized;%F0%9F%93%8A+Dynamic+SVG+Trendline+Analytics%2C+Weak-Key+Diagnostics+%26+PNG+Export" alt="3D Real-Time Typing Stream" />
   </a>
 
