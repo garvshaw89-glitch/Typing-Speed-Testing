@@ -18,7 +18,7 @@
   <a href="https://typing-speed-testing-kappa.vercel.app/" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/🚀_LAUNCH_LIVE_3D_PROJECT-typing--speed--tester--kappa.vercel.app-0284c7?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo Link" height="42" />
   </a>
-  <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
+  <a href="https://typing-speed-testing-kappa.vercel.app/" target="_blank" rel="noopener noreferrer">
     <img src="https://img.shields.io/badge/STATUS-ACTIVE_%26_VERIFIED-10b981?style=for-the-badge&logo=statuspal&logoColor=white" alt="Operational Status" height="42" />
   </a>
   <a href="https://github.com/garvshaw89-glitch/typing-speed-tester/blob/main/LICENSE">
@@ -39,7 +39,7 @@
 
   <p>
     <strong>🌐 Direct Live URL:</strong><br/>
-    <a href="https://typing-speed-tester-two.vercel.app/" target="_blank" rel="noopener noreferrer">
+    <a href="https://typing-speed-testing-kappa.vercel.app/" target="_blank" rel="noopener noreferrer">
       <code>https://typing-speed-tester-two.vercel.app/</code>
     </a>
   </p>
