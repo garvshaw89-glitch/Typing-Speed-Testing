@@ -49,6 +49,7 @@ export interface UserPreferences {
   largeCursor: boolean;
   reduceMotion: boolean;
   showLiveStats: boolean;
+  showRhythmGraph?: boolean;
   autoStartCountdown: boolean;
   targetWpm?: number;
   lastUpdated: number;
@@ -104,6 +105,7 @@ export interface TestResult {
   // Analysis
   averageCharTimeMs: number;
   consistencyScore: number; // 0 - 100
+  pauseCount?: number;
   isPersonalBest: boolean;
   notes?: string;
   keyStats?: Record<string, { total: number; errors: number }>;

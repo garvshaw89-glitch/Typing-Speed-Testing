@@ -464,7 +464,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
         </div>
 
         {/* Secondary Detailed Metrics Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
           <div className="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800">
             <span className="text-slate-500 dark:text-slate-400 block font-medium">Raw Speed</span>
             <span className="text-base font-bold text-slate-800 dark:text-slate-200 tabular-nums">
@@ -480,13 +480,26 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           </div>
 
           <div className="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800">
-            <span className="text-slate-500 dark:text-slate-400 block font-medium">Consistency</span>
-            <span className="text-base font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">
+            <span className="text-slate-500 dark:text-slate-400 block font-medium">Rhythm Stability</span>
+            <span className="text-base font-bold text-teal-600 dark:text-teal-400 tabular-nums">
               {result.consistencyScore}%
             </span>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800">
+            <span className="text-slate-500 dark:text-slate-400 block font-medium">Cadence Pauses</span>
+            <span
+              className={`text-base font-bold tabular-nums ${
+                (result.pauseCount ?? 0) > 0
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-emerald-600 dark:text-emerald-400'
+              }`}
+            >
+              {result.pauseCount ?? 0}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800 col-span-2 sm:col-span-1">
             <span className="text-slate-500 dark:text-slate-400 block font-medium">Vs Best</span>
             <span
               className={`text-base font-bold tabular-nums ${

@@ -502,6 +502,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                 />
               </label>
+
+              {/* Show Typing Rhythm Graph */}
+              <label className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
+                <div>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">Typing Rhythm Graph</span>
+                  <span className="text-xs text-slate-500">Subtle real-time sparkline below typing area showing stability and cadence pauses</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={localPrefs.showRhythmGraph ?? true}
+                  onChange={(e) => setLocalPrefs({ ...localPrefs, showRhythmGraph: e.target.checked })}
+                  className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
+                />
+              </label>
             </div>
           </div>
 

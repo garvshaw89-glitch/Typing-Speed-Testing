@@ -27,6 +27,7 @@ import {
   Quote,
 } from 'lucide-react';
 import { Button } from './ui/Button';
+import { TypingRhythmSparkline, KeystrokeRhythmPoint } from './TypingRhythmSparkline';
 
 interface ActiveTestScreenProps {
   preferences: UserPreferences;
@@ -73,6 +74,9 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
   const [targetReachedAlert, setTargetReachedAlert] = useState<boolean>(false);
   const [metronomeAudio, setMetronomeAudio] = useState<boolean>(false);
   const [hasErrorOnLastKeystroke, setHasErrorOnLastKeystroke] = useState<boolean>(false);
+  const [rhythmPoints, setRhythmPoints] = useState<KeystrokeRhythmPoint[]>([]);
+  const rhythmPointsRef = useRef<KeystrokeRhythmPoint[]>([]);
+  const [activePauseMs, setActivePauseMs] = useState<number | null>(null);
 
   // Real-time tracking
   const charTimingsRef = useRef<number[]>([]);
@@ -193,6 +197,7 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
         wpmProgression: progressionRef.current,
         averageCharTimeMs: avgCharTimeMs,
         consistencyScore: consistency,
+        pauseCount: rhythmPointsRef.current.filter((p) => p.isPause).length,
         isPersonalBest: false,
         keyStats: keyStatsRef.current,
       };
@@ -310,6 +315,16 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
         setTargetReachedAlert(true);
       }
 
+      // Check active pause during typing test
+      if (lastKeyTimeRef.current) {
+        const pauseSinceLastKey = now - lastKeyTimeRef.current;
+        if (pauseSinceLastKey > 450) {
+          setActivePauseMs(pauseSinceLastKey);
+        } else {
+          setActivePauseMs(null);
+        }
+      }
+
       if (isTimeMode) {
         const remaining = Math.max(0, effectiveDuration - elapsed);
         setTimeRemaining(remaining);
@@ -341,18 +356,45 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
     const now = Date.now();
     const effectiveStartTime = startTime || now;
 
+    const newCharIndex = value.length - 1;
+    const typedChar = newCharIndex >= 0 ? value[newCharIndex] : '';
+    const targetChar = newCharIndex >= 0 ? targetText[newCharIndex] : '';
+
     if (!startTime) {
       setStartTime(now);
     } else if (lastKeyTimeRef.current) {
       const diff = now - lastKeyTimeRef.current;
       charTimingsRef.current.push(diff);
+
+      // Rolling cadence average for rhythm normalization
+      const recentDiffs = charTimingsRef.current.slice(-15);
+      const rollingAvg =
+        recentDiffs.reduce((a, b) => a + b, 0) / Math.max(1, recentDiffs.length);
+
+      // Detect rhythm break / pause: absolute threshold (>400ms) or relative cadence stall
+      const isPause = diff > 400 || (recentDiffs.length >= 3 && diff > rollingAvg * 2.2 && diff > 300);
+      const isSeverePause = diff > 750;
+      const instantWpm = Math.min(240, Math.max(8, Math.round((60000 / Math.max(40, diff)) / 5)));
+
+      const rhythmPt: KeystrokeRhythmPoint = {
+        id: rhythmPointsRef.current.length + 1,
+        char: typedChar,
+        intervalMs: diff,
+        instantWpm,
+        isPause,
+        isSeverePause,
+        isError: typedChar !== targetChar,
+        timestamp: now,
+        rollingAvgIntervalMs: Math.round(rollingAvg),
+      };
+
+      rhythmPointsRef.current.push(rhythmPt);
+      setRhythmPoints([...rhythmPointsRef.current]);
     }
     lastKeyTimeRef.current = now;
+    setActivePauseMs(null);
 
-    const newCharIndex = value.length - 1;
     if (value.length > typedText.length && newCharIndex >= 0) {
-      const typedChar = value[newCharIndex];
-      const targetChar = targetText[newCharIndex];
 
       if (targetChar) {
         const keyKey = targetChar.toLowerCase();
@@ -431,6 +473,9 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
     progressionRef.current = [];
     keyStatsRef.current = {};
     lastKeyTimeRef.current = null;
+    rhythmPointsRef.current = [];
+    setRhythmPoints([]);
+    setActivePauseMs(null);
     lastProgressionSecRef.current = 0;
     hasTriggeredTargetAlertRef.current = false;
     setTargetReachedAlert(false);
@@ -742,6 +787,29 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
         >
           <span>📱 Tap here to open keyboard & continue test</span>
         </button>
+      )}
+
+      {/* Real-time Typing Rhythm Visualization Sparkline */}
+      {preferences.showRhythmGraph !== false && (
+        <TypingRhythmSparkline
+          points={rhythmPoints}
+          isTypingStarted={Boolean(startTime && typedText.length > 0)}
+          isTestActive={Boolean(startTime && (!isTimeMode || timeRemaining > 0))}
+          currentConsistency={liveRhythmConsistency}
+          activePauseMs={activePauseMs}
+          totalPauses={rhythmPoints.filter((p) => p.isPause).length}
+          averageIntervalMs={
+            charTimingsRef.current.length > 0
+              ? Math.round(
+                  charTimingsRef.current.reduce((a, b) => a + b, 0) /
+                    charTimingsRef.current.length
+                )
+              : 0
+          }
+          liveWpm={liveWpm}
+          reduceMotion={preferences.reduceMotion}
+          highContrast={preferences.highContrastMode}
+        />
       )}
 
       {/* Full Live Stats Bar (adaptive 2-col on small screens, 4-col on tablet/desktop) */}

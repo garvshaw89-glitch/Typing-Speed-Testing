@@ -24,6 +24,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   largeCursor: false,
   reduceMotion: false,
   showLiveStats: true,
+  showRhythmGraph: true,
   autoStartCountdown: true,
   targetWpm: 60,
   lastUpdated: Date.now(),
@@ -50,6 +51,7 @@ export function getPreferences(): UserPreferences {
       username: parsed.username || 'SpeedTypist',
       soundPack: parsed.soundPack || 'mechanical',
       soundVolume: typeof parsed.soundVolume === 'number' ? parsed.soundVolume : 0.8,
+      showRhythmGraph: parsed.showRhythmGraph ?? true,
     };
   } catch (e) {
     console.error('Failed to parse preferences from localStorage', e);
