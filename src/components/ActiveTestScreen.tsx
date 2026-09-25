@@ -259,7 +259,7 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
         if (isWarmupMode) {
           soundEngine.playWarmupKeyClick();
         } else {
-          soundEngine.playKeyClick();
+          soundEngine.playKeyClick(typedChar);
         }
       } else {
         if (isWarmupMode) {
@@ -269,6 +269,9 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
           soundEngine.playErrorSound();
         }
       }
+    } else if (value.length < typedText.length) {
+      // Backspace / deletion
+      soundEngine.playBackspaceSound();
     }
 
     setTypedText(value);

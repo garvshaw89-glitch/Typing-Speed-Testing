@@ -10,6 +10,8 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   theme: 'system',
   fontSize: 'medium',
   soundEffectsEnabled: true,
+  soundPack: 'mechanical',
+  soundVolume: 0.8,
   highContrastMode: false,
   largeCursor: false,
   reduceMotion: false,
@@ -27,7 +29,12 @@ export function getPreferences(): UserPreferences {
     const raw = localStorage.getItem(PREFS_KEY);
     if (!raw) return DEFAULT_PREFERENCES;
     const parsed = JSON.parse(raw);
-    return { ...DEFAULT_PREFERENCES, ...parsed };
+    return {
+      ...DEFAULT_PREFERENCES,
+      ...parsed,
+      soundPack: parsed.soundPack || 'mechanical',
+      soundVolume: typeof parsed.soundVolume === 'number' ? parsed.soundVolume : 0.8,
+    };
   } catch (e) {
     console.error('Failed to parse preferences from localStorage', e);
     return DEFAULT_PREFERENCES;

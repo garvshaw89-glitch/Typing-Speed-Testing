@@ -1,7 +1,81 @@
 import React, { useState } from 'react';
-import { UserPreferences, DifficultyLevel, TextType, ThemeMode, FontSizeOption } from '../types';
+import {
+  UserPreferences,
+  DifficultyLevel,
+  TextType,
+  ThemeMode,
+  FontSizeOption,
+  SoundPack,
+} from '../types';
 import { resetPreferencesToDefault } from '../services/storageService';
-import { X, RotateCcw, Check, Sliders, Volume2, Eye, Sun, Type, Target } from 'lucide-react';
+import { soundEngine } from '../services/soundEngine';
+import {
+  X,
+  RotateCcw,
+  Check,
+  Sliders,
+  Volume2,
+  Volume1,
+  VolumeX,
+  Play,
+  Eye,
+  Sun,
+  Type,
+  Target,
+  Sparkles,
+} from 'lucide-react';
+
+interface SoundPackOption {
+  id: SoundPack;
+  name: string;
+  subtitle: string;
+  description: string;
+  badge: string;
+  badgeColor: string;
+}
+
+const SOUND_PACK_OPTIONS: SoundPackOption[] = [
+  {
+    id: 'mechanical',
+    name: 'Mechanical',
+    subtitle: 'Tactile Clicky Switch',
+    description: 'Crisp snap with tactile leaf click and solid bottom-out housing acoustics (Cherry MX Blue style).',
+    badge: 'Popular',
+    badgeColor: 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+  },
+  {
+    id: 'typewriter',
+    name: 'Typewriter',
+    subtitle: 'Vintage Cast-Iron Clack',
+    description: 'Authentic manual typewriter hammer strikes, chassis resonance, carriage advance, and margin bell.',
+    badge: 'Retro',
+    badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+  },
+  {
+    id: 'soft',
+    name: 'Soft',
+    subtitle: 'Muted Laptop Chiclet',
+    description: 'Gentle, low-profile cushioned keystrokes. Quiet, smooth, and non-distracting for focused work.',
+    badge: 'Subtle',
+    badgeColor: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+  },
+  {
+    id: 'thock',
+    name: 'Thock',
+    subtitle: 'Custom Lubed Linear',
+    description: 'Deep, creamy, acoustic-damped marbly thud beloved by mechanical keyboard enthusiasts.',
+    badge: 'Enthusiast',
+    badgeColor: 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+  },
+  {
+    id: 'bubble',
+    name: 'Bubble Pop',
+    subtitle: 'Playful Harmonic Drops',
+    description: 'Bubbly, light harmonic pops that bring uplifting tactile delight and bounce to every word.',
+    badge: 'Playful',
+    badgeColor: 'bg-pink-100 text-pink-700 dark:bg-pink-950/60 dark:text-pink-300 border-pink-200 dark:border-pink-800',
+  },
+];
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -38,6 +112,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const defaults = resetPreferencesToDefault();
     setLocalPrefs(defaults);
     setCustomDurationInput(defaults.testDuration.toString());
+    setTargetWpmInput((defaults.targetWpm ?? 60).toString());
+    soundEngine.setSoundPack(defaults.soundPack || 'mechanical');
+    soundEngine.setVolume(defaults.soundVolume ?? 0.8);
   };
 
   const handleSaveAndClose = () => {
@@ -250,26 +327,168 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Audio & Toggles */}
-          <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-            <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-              <Volume2 className="w-4 h-4 text-indigo-500" />
-              <span>Audio & Live Feedback</span>
+          <div className="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between">
+              <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-indigo-500" />
+                <span>Audio & Sound Engine</span>
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400">
+                Web Audio Synthesizer
+              </span>
             </div>
 
-            <div className="space-y-2">
-              <label className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
+            <div className="space-y-3">
+              {/* Master Sound Effects Toggle */}
+              <label className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer transition-colors">
                 <div>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">Sound Effects</span>
-                  <span className="text-xs text-slate-500">Play key click and error audio feedback</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 block">Sound Effects</span>
+                    {localPrefs.soundEffectsEnabled && (
+                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                        Active
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs text-slate-500">Play real-time acoustic feedback for keystrokes, spacebars & errors</span>
                 </div>
                 <input
                   type="checkbox"
                   checked={localPrefs.soundEffectsEnabled}
-                  onChange={(e) => setLocalPrefs({ ...localPrefs, soundEffectsEnabled: e.target.checked })}
-                  className="w-5 h-5 accent-blue-600 rounded"
+                  onChange={(e) => {
+                    const enabled = e.target.checked;
+                    setLocalPrefs({ ...localPrefs, soundEffectsEnabled: enabled });
+                    soundEngine.setEnabled(enabled);
+                    if (enabled) {
+                      soundEngine.previewSoundPack(localPrefs.soundPack || 'mechanical');
+                    }
+                  }}
+                  className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                 />
               </label>
 
+              {/* Sound Pack Selection & Volume Controls (when sound is enabled) */}
+              {localPrefs.soundEffectsEnabled && (
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/80 space-y-3.5 animate-fade-in">
+                  {/* Volume Slider */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        {(localPrefs.soundVolume ?? 0.8) === 0 ? (
+                          <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                        ) : (localPrefs.soundVolume ?? 0.8) < 0.5 ? (
+                          <Volume1 className="w-3.5 h-3.5 text-indigo-500" />
+                        ) : (
+                          <Volume2 className="w-3.5 h-3.5 text-indigo-500" />
+                        )}
+                        <span>Volume Level</span>
+                      </span>
+                      <span className="font-mono font-bold text-slate-600 dark:text-slate-400">
+                        {Math.round((localPrefs.soundVolume ?? 0.8) * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={localPrefs.soundVolume ?? 0.8}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setLocalPrefs({ ...localPrefs, soundVolume: val });
+                        soundEngine.setVolume(val);
+                      }}
+                      className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    />
+                  </div>
+
+                  {/* Typing Sound Packs Header */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Typing Sound Pack</span>
+                      </label>
+                      <span className="text-[11px] text-slate-500">Tap to select & test</span>
+                    </div>
+
+                    {/* Sound Pack Cards Grid */}
+                    <div className="grid grid-cols-1 gap-2">
+                      {SOUND_PACK_OPTIONS.map((pack) => {
+                        const isSelected = (localPrefs.soundPack || 'mechanical') === pack.id;
+                        return (
+                          <div
+                            key={pack.id}
+                            onClick={() => {
+                              setLocalPrefs({ ...localPrefs, soundPack: pack.id });
+                              soundEngine.setSoundPack(pack.id);
+                              soundEngine.previewSoundPack(pack.id);
+                            }}
+                            className={`p-2.5 sm:p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                              isSelected
+                                ? 'bg-white dark:bg-slate-800 border-blue-600 dark:border-blue-500 shadow-md ring-2 ring-blue-500/20'
+                                : 'bg-white/70 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/70 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-800'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              <div
+                                className={`w-4 h-4 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                                  isSelected
+                                    ? 'border-blue-600 bg-blue-600 text-white'
+                                    : 'border-slate-300 dark:border-slate-600'
+                                }`}
+                              >
+                                {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                              </div>
+
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span
+                                    className={`font-bold text-xs sm:text-sm ${
+                                      isSelected
+                                        ? 'text-blue-600 dark:text-blue-400'
+                                        : 'text-slate-900 dark:text-white'
+                                    }`}
+                                  >
+                                    {pack.name}
+                                  </span>
+                                  <span className="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400">
+                                    • {pack.subtitle}
+                                  </span>
+                                  <span
+                                    className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-md border ${pack.badgeColor}`}
+                                  >
+                                    {pack.badge}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                  {pack.description}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Dedicated Preview Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                soundEngine.previewSoundPack(pack.id);
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-900 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-xs flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
+                              title={`Preview ${pack.name} sound`}
+                            >
+                              <Play className="w-3 h-3 fill-current" />
+                              <span className="hidden sm:inline">Listen</span>
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Show Live Stats */}
               <label className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
                 <div>
                   <span className="font-semibold text-slate-800 dark:text-slate-200 block">Show Live Stats</span>
@@ -279,7 +498,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="checkbox"
                   checked={localPrefs.showLiveStats}
                   onChange={(e) => setLocalPrefs({ ...localPrefs, showLiveStats: e.target.checked })}
-                  className="w-5 h-5 accent-blue-600 rounded"
+                  className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                 />
               </label>
             </div>

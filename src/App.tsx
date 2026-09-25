@@ -47,6 +47,12 @@ export default function App() {
   // Sync Preferences to Sound Engine & Theme Class on Root
   useEffect(() => {
     soundEngine.setEnabled(preferences.soundEffectsEnabled);
+    if (preferences.soundPack) {
+      soundEngine.setSoundPack(preferences.soundPack);
+    }
+    if (typeof preferences.soundVolume === 'number') {
+      soundEngine.setVolume(preferences.soundVolume);
+    }
 
     const root = document.documentElement;
     if (

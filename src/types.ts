@@ -2,6 +2,7 @@ export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 export type TextType = 'words' | 'sentences' | 'code' | 'paragraph';
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type FontSizeOption = 'small' | 'medium' | 'large';
+export type SoundPack = 'mechanical' | 'typewriter' | 'soft' | 'thock' | 'bubble';
 
 export type TrophyTier = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master';
 export type AchievementCategory = 'speed' | 'accuracy' | 'endurance' | 'streak';
@@ -31,6 +32,8 @@ export interface UserPreferences {
   theme: ThemeMode;
   fontSize: FontSizeOption;
   soundEffectsEnabled: boolean;
+  soundPack?: SoundPack;
+  soundVolume?: number;
   highContrastMode: boolean;
   largeCursor: boolean;
   reduceMotion: boolean;
