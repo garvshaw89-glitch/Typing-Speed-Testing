@@ -240,7 +240,7 @@ npm run build
 
 ## 🌐 Live Application
 
-👉 **[https://typing-speed-tester-two.vercel.app/](https://typing-speed-tester-two.vercel.app/)**
+👉 **[https://typing-speed-testing-kappa.vercel.app/](https://typing-speed-testing-kappa.vercel.app/)**
 
 ---
 
