@@ -123,17 +123,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-      <div className="max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-fade-in">
+      <div className="max-w-xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2.5">
             <Sliders className="w-5 h-5 text-blue-500" />
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Settings & Preferences</h2>
+            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">Settings & Preferences</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center cursor-pointer"
+            aria-label="Close Settings Modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -144,7 +145,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Test Duration */}
           <div className="space-y-2">
             <label className="font-bold text-slate-800 dark:text-slate-200 block">Test Duration</label>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {[15, 30, 60, 120].map((d) => (
                 <button
                   key={d}
@@ -152,7 +153,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     setLocalPrefs({ ...localPrefs, testDuration: d });
                     setCustomDurationInput(d.toString());
                   }}
-                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                  className={`py-2.5 text-xs font-bold rounded-xl border transition-all min-h-[44px] cursor-pointer ${
                     localPrefs.testDuration === d
                       ? 'bg-blue-600 text-white border-blue-600 shadow-md'
                       : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -171,7 +172,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={customDurationInput}
                   onChange={(e) => handleCustomDurationChange(e.target.value)}
                   placeholder="Custom"
-                  className="w-full h-full py-2 px-2 text-center text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-full py-2 px-2 text-center text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
                 />
               </div>
             </div>
@@ -190,7 +191,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {[0, 40, 60, 80, 100].map((wpm) => (
                 <button
                   key={wpm}
@@ -198,7 +199,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     setLocalPrefs({ ...localPrefs, targetWpm: wpm });
                     setTargetWpmInput(wpm.toString());
                   }}
-                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                  className={`py-2 text-xs font-bold rounded-xl border transition-all min-h-[44px] cursor-pointer ${
                     (localPrefs.targetWpm ?? 0) === wpm
                       ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
                       : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -224,7 +225,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     }
                   }}
                   placeholder="Custom"
-                  className="w-full h-full py-2 px-1 text-center text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full h-full py-2 px-1 text-center text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[44px]"
                 />
               </div>
             </div>
@@ -536,10 +537,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-4 border-t border-slate-200 dark:border-slate-700">
           <button
             onClick={handleResetDefaults}
-            className="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs flex items-center justify-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors min-h-[44px] cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Reset Defaults</span>
@@ -547,7 +548,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           <button
             onClick={handleSaveAndClose}
-            className="py-2.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md flex items-center gap-2 transition-colors cursor-pointer"
+            className="py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px]"
           >
             <Check className="w-4 h-4" />
             <span>Save & Close</span>

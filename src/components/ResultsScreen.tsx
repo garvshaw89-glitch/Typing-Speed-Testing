@@ -599,7 +599,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
       />
 
       {/* Action Buttons with Universal Button States */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {result.isWarmup ? (
           <>
             <Button
@@ -669,6 +669,7 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
           variant="outline"
           size="md"
           onClick={onViewHistory}
+          className="col-span-2 sm:col-span-1"
           leftIcon={<History className="w-4 h-4 text-emerald-500" />}
         >
           History

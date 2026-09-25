@@ -604,14 +604,14 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-                    <th className="py-3 px-3">Date & Time</th>
-                    <th className="py-3 px-3">Duration</th>
-                    <th className="py-3 px-3">Mode</th>
-                    <th className="py-3 px-3">Speed (WPM)</th>
-                    <th className="py-3 px-3">Accuracy</th>
-                    <th className="py-3 px-3">Errors</th>
-                    <th className="py-3 px-3 text-right">Action</th>
+                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                    <th className="py-3 px-2 sm:px-3">Date</th>
+                    <th className="py-3 px-2 sm:px-3 hidden sm:table-cell">Duration</th>
+                    <th className="py-3 px-2 sm:px-3 hidden md:table-cell">Mode</th>
+                    <th className="py-3 px-2 sm:px-3">Speed</th>
+                    <th className="py-3 px-2 sm:px-3">Accuracy</th>
+                    <th className="py-3 px-2 sm:px-3 hidden sm:table-cell">Errors</th>
+                    <th className="py-3 px-2 sm:px-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -620,30 +620,33 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
                       key={item.testId}
                       className="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors"
                     >
-                      <td className="py-3 px-3 text-slate-900 dark:text-slate-200 font-medium whitespace-nowrap">
-                        {new Date(item.timestamp).toLocaleString(undefined, {
+                      <td className="py-3 px-2 sm:px-3 text-slate-900 dark:text-slate-200 font-medium whitespace-nowrap text-xs">
+                        {new Date(item.timestamp).toLocaleDateString(undefined, {
                           month: 'short',
                           day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
                         })}
                       </td>
-                      <td className="py-3 px-3 text-slate-600 dark:text-slate-400">{item.duration}s</td>
-                      <td className="py-3 px-3 text-slate-600 dark:text-slate-400 capitalize">
-                        {item.difficulty} • {item.textType}
+                      <td className="py-3 px-2 sm:px-3 text-slate-600 dark:text-slate-400 hidden sm:table-cell font-mono tabular-nums">
+                        {item.duration}s
                       </td>
-                      <td className="py-3 px-3 font-extrabold text-blue-600 dark:text-blue-400">
-                        {item.wpm} WPM
+                      <td className="py-3 px-2 sm:px-3 text-slate-600 dark:text-slate-400 capitalize hidden md:table-cell">
+                        {item.difficulty} · {item.textType}
                       </td>
-                      <td className="py-3 px-3 font-extrabold text-emerald-600 dark:text-emerald-400">
+                      <td className="py-3 px-2 sm:px-3 font-extrabold text-blue-600 dark:text-blue-400 font-mono tabular-nums whitespace-nowrap">
+                        {item.wpm} <span className="text-[10px] font-normal text-slate-400">WPM</span>
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 font-extrabold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums whitespace-nowrap">
                         {item.accuracy}%
                       </td>
-                      <td className="py-3 px-3 font-medium text-rose-600 dark:text-rose-400">{item.errors}</td>
-                      <td className="py-3 px-3 text-right">
+                      <td className="py-3 px-2 sm:px-3 font-medium text-rose-600 dark:text-rose-400 hidden sm:table-cell font-mono tabular-nums">
+                        {item.errors}
+                      </td>
+                      <td className="py-3 px-2 sm:px-3 text-right">
                         <button
                           onClick={() => handleDeleteItem(item.testId)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                          className="w-9 h-9 min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                           title="Delete Record"
+                          aria-label="Delete test record"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

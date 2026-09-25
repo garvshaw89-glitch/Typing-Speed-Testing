@@ -587,26 +587,29 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
             </div>
           )}
 
-          {/* Controls: Zen mode, Restart, Exit */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          {/* Controls: Zen mode, Restart, Exit (with min 44px touch targets) */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button
               onClick={() => setZenMode((z) => !z)}
-              className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center cursor-pointer shrink-0"
               title={zenMode ? 'Disable Zen Mode' : 'Enable Zen Distraction-Free Mode'}
+              aria-label="Toggle Zen Mode"
             >
               {zenMode ? <Eye className="w-4 h-4 text-blue-500" /> : <EyeOff className="w-4 h-4" />}
             </button>
             <button
               onClick={handleRestart}
-              className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center cursor-pointer shrink-0"
               title="Restart Test (Tab+Enter)"
+              aria-label="Restart Test"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
               onClick={() => setShowExitConfirm(true)}
-              className="p-2 sm:p-2.5 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+              className="w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors flex items-center justify-center cursor-pointer shrink-0"
               title="Cancel Test (Esc)"
+              aria-label="Cancel Test"
             >
               <X className="w-4 h-4" />
             </button>
@@ -651,8 +654,9 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
           </div>
           <button
             onClick={() => setTargetReachedAlert(false)}
-            className="p-1.5 rounded-xl hover:bg-emerald-200/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 transition-colors"
+            className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl hover:bg-emerald-200/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 transition-colors flex items-center justify-center cursor-pointer shrink-0"
             title="Dismiss Alert"
+            aria-label="Dismiss Alert"
           >
             <X className="w-4 h-4" />
           </button>
@@ -663,15 +667,15 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
       <div
         ref={textContainerRef}
         onClick={() => inputRef.current?.focus()}
-        className={`relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-800/90 border-2 transition-all ${
+        className={`relative p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-800/90 border-2 transition-all ${
           hasErrorOnLastKeystroke
             ? 'border-rose-400/80 dark:border-rose-500/80 shadow-rose-500/10'
             : preferences.highContrastMode
             ? 'border-blue-600 dark:border-blue-400'
             : 'border-slate-200 dark:border-slate-700'
-        } shadow-xl max-h-[320px] overflow-y-auto select-none font-mono cursor-text text-xl sm:text-2xl leading-relaxed`}
+        } shadow-xl max-h-[220px] sm:max-h-[320px] overflow-y-auto select-none font-mono cursor-text text-base sm:text-2xl leading-relaxed break-words`}
       >
-        {/* Hidden input field capturing keystrokes */}
+        {/* Hidden input field capturing keystrokes (text-base prevents iOS zoom) */}
         <textarea
           ref={inputRef}
           value={typedText}
@@ -682,7 +686,7 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
           }}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer resize-none font-mono text-transparent bg-transparent focus:outline-none"
+          className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer resize-none font-mono text-base text-transparent bg-transparent focus:outline-none"
           autoFocus
           inputMode="text"
           enterKeyHint="done"
@@ -693,7 +697,7 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
         />
 
         {!startTime && (
-          <div className="mb-4 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 animate-pulse flex items-center gap-1.5">
+          <div className="mb-3 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 animate-pulse flex items-center gap-1.5">
             <span>★</span>
             <span>{isFocused ? 'Start typing to begin...' : 'Tap here to focus & start typing...'}</span>
           </div>
@@ -734,21 +738,21 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
       {!isFocused && (
         <button
           onClick={() => inputRef.current?.focus()}
-          className="w-full py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer animate-pulse transition-all"
+          className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer animate-pulse transition-all touch-manipulation"
         >
-          <span>📱 Tap here to open virtual keyboard & continue test</span>
+          <span>📱 Tap here to open keyboard & continue test</span>
         </button>
       )}
 
-      {/* Full Live Stats Bar (when not in Zen Mode) */}
+      {/* Full Live Stats Bar (adaptive 2-col on small screens, 4-col on tablet/desktop) */}
       {!zenMode && preferences.showLiveStats && (
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm grid grid-cols-4 gap-2 text-center font-mono">
-          <div>
+        <div className="p-3 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-center font-mono">
+          <div className="p-2 sm:p-0 bg-slate-50 sm:bg-transparent dark:bg-slate-900/40 sm:dark:bg-transparent rounded-xl">
             <div className="text-[10px] uppercase font-bold text-slate-400">
               {isWarmupMode ? 'Cadence' : 'Live WPM'}
             </div>
             <div
-              className={`text-xl font-black ${
+              className={`text-lg sm:text-xl font-black ${
                 isWarmupMode ? 'text-teal-600 dark:text-teal-400' : 'text-blue-600 dark:text-blue-400'
               } tabular-nums`}
             >
@@ -759,21 +763,21 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
                 : liveWpm}
             </div>
           </div>
-          <div>
+          <div className="p-2 sm:p-0 bg-slate-50 sm:bg-transparent dark:bg-slate-900/40 sm:dark:bg-transparent rounded-xl">
             <div className="text-[10px] uppercase font-bold text-slate-400">Accuracy</div>
-            <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+            <div className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
               {liveAccuracy}%
             </div>
           </div>
-          <div>
+          <div className="p-2 sm:p-0 bg-slate-50 sm:bg-transparent dark:bg-slate-900/40 sm:dark:bg-transparent rounded-xl">
             <div className="text-[10px] uppercase font-bold text-slate-400">Errors</div>
-            <div className="text-xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
+            <div className="text-lg sm:text-xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
               {errorCount}
             </div>
           </div>
-          <div>
+          <div className="p-2 sm:p-0 bg-slate-50 sm:bg-transparent dark:bg-slate-900/40 sm:dark:bg-transparent rounded-xl">
             <div className="text-[10px] uppercase font-bold text-slate-400">Typed</div>
-            <div className="text-xl font-black text-slate-800 dark:text-slate-200 tabular-nums">
+            <div className="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-200 tabular-nums">
               {totalTyped}
             </div>
           </div>

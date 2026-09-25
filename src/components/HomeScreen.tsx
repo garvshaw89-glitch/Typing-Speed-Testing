@@ -71,7 +71,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-fade-in overflow-x-hidden">
       {/* Hero Header */}
       <div className="text-center space-y-3 pt-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider">
@@ -85,15 +85,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             {' '}Improve Your Accuracy.
           </span>
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-base sm:text-lg">
+        <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-lg">
           Master keystroke cadence, eliminate typing errors, and benchmark your raw and adjusted WPM in real-time.
         </p>
       </div>
 
       {/* Quick Statistics Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {/* Best WPM */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
             <span>Best WPM</span>
             <Trophy className="w-4 h-4 text-amber-500" />
@@ -107,7 +107,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         {/* Best Accuracy */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
             <span>Best Accuracy</span>
             <Target className="w-4 h-4 text-emerald-500" />
@@ -120,7 +120,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         {/* Total Tests */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
             <span>Tests Taken</span>
             <Award className="w-4 h-4 text-blue-500" />
@@ -133,7 +133,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         {/* Streak */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
             <span>Daily Streak</span>
             <Flame className="w-4 h-4 text-rose-500" />
@@ -148,7 +148,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </div>
 
       {/* Primary Configuration & Test Launcher Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
+      <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
         {/* Test Mode Selector: Time / Words / Quote / Custom */}
         <div className="space-y-2">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center justify-between">
@@ -156,7 +156,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Layers className="w-3.5 h-3.5 text-blue-500" />
               <span>Test Mode</span>
             </span>
-            <span className="text-[11px] font-normal text-slate-400">
+            <span className="text-[11px] font-normal text-slate-400 hidden sm:inline">
               {preferences.testMode === 'time' && 'Timed countdown duration'}
               {preferences.testMode === 'words' && 'Sprint through fixed word count'}
               {preferences.testMode === 'quote' && 'Famous quotes & literature'}
@@ -177,14 +177,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <button
                   key={mode.id}
                   onClick={() => onUpdatePreferences({ testMode: mode.id as TestMode })}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  className={`py-2.5 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 min-h-[44px] cursor-pointer touch-manipulation ${
                     isSelected
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
-                  <span>{mode.label}</span>
+                  <span className="truncate">{mode.label}</span>
                 </button>
               );
             })}
@@ -192,7 +192,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         {/* Sub-options depending on mode */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-1">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-1">
           {/* Mode-specific Option 1: Duration or Word Count */}
           {preferences.testMode === 'time' && (
             <div className="space-y-2">
@@ -205,7 +205,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <button
                     key={d}
                     onClick={() => onUpdatePreferences({ testDuration: d })}
-                    className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    className={`py-2 text-xs font-bold rounded-lg transition-all min-h-[42px] cursor-pointer touch-manipulation ${
                       preferences.testDuration === d
                         ? 'bg-blue-600 text-white shadow-xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -229,7 +229,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <button
                     key={wc}
                     onClick={() => onUpdatePreferences({ wordCount: wc })}
-                    className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                    className={`py-2 text-xs font-bold rounded-lg transition-all min-h-[42px] cursor-pointer touch-manipulation ${
                       preferences.wordCount === wc
                         ? 'bg-blue-600 text-white shadow-xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -248,9 +248,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <Quote className="w-3.5 h-3.5 text-blue-500" />
                 Quote Library
               </label>
-              <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                <span>Classic & Scientific Passages</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <div className="p-2.5 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between min-h-[44px]">
+                <span className="truncate">Classic &amp; Scientific</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0 ml-1">
                   Curated
                 </span>
               </div>
@@ -270,7 +270,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 step={5}
                 value={preferences.customDuration}
                 onChange={(e) => onUpdatePreferences({ customDuration: Number(e.target.value) })}
-                className="w-full accent-blue-600 cursor-pointer"
+                className="w-full accent-blue-600 cursor-pointer min-h-[36px]"
               />
             </div>
           )}
@@ -286,7 +286,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <button
                   key={diff}
                   onClick={() => onUpdatePreferences({ difficultyLevel: diff })}
-                  className={`py-2 text-xs font-bold capitalize rounded-lg transition-all cursor-pointer ${
+                  className={`py-2 text-xs font-bold capitalize rounded-lg transition-all min-h-[42px] cursor-pointer touch-manipulation ${
                     preferences.difficultyLevel === diff
                       ? 'bg-blue-600 text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -314,13 +314,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <button
                   key={item.id}
                   onClick={() => onUpdatePreferences({ textType: item.id as TextType })}
-                  className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  className={`py-2 text-xs font-bold rounded-lg transition-all min-h-[42px] cursor-pointer touch-manipulation ${
                     preferences.textType === item.id
                       ? 'bg-blue-600 text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <span>{item.label}</span>
+                  <span className="truncate">{item.label}</span>
                 </button>
               ))}
             </div>

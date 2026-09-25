@@ -12,6 +12,7 @@ import { ResultsScreen } from './components/ResultsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { LeaderboardView } from './components/LeaderboardView';
 import { BackgroundAura } from './components/BackgroundAura';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { SettingsModal } from './components/SettingsModal';
 import { HelpModal } from './components/HelpModal';
 import { TrophyCelebrationModal } from './components/TrophyCelebrationModal';
@@ -171,7 +172,7 @@ export default function App() {
       />
 
       {/* Main Screen Views */}
-      <main className="flex-1 pb-12">
+      <main className={`flex-1 ${screen === 'test' || screen === 'prep' ? 'pb-6' : 'pb-20 md:pb-12'} px-safe overflow-x-hidden`}>
         {screen === 'home' && (
           <HomeScreen
             stats={stats}
@@ -240,6 +241,19 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Mobile Bottom Navigation (active on non-test screens) */}
+      {screen !== 'test' && screen !== 'prep' && (
+        <MobileBottomNav
+          currentScreen={screen}
+          onNavigate={(s) => {
+            if (s === 'history') setHistoryInitialTab('list');
+            setScreen(s);
+          }}
+          onOpenTrophies={handleOpenTrophies}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+        />
+      )}
 
       {/* Trophy Celebration Modal */}
       {showCelebrationModal && recentUnlockedAchievements.length > 0 && (

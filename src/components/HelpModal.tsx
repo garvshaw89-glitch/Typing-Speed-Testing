@@ -10,17 +10,18 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-      <div className="max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-fade-in">
+      <div className="max-w-xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center gap-2.5">
             <HelpCircle className="w-5 h-5 text-blue-500" />
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Instructions & FAQ</h2>
+            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">Instructions & FAQ</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center cursor-pointer"
+            aria-label="Close Help Modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -96,12 +97,12 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
               <Keyboard className="w-4 h-4 text-teal-500" />
               Keyboard Shortcuts
             </h3>
-            <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 flex justify-between items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+              <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 flex justify-between items-center">
                 <span>Cancel / Exit Test</span>
                 <kbd className="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border">Esc</kbd>
               </div>
-              <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 flex justify-between items-center">
+              <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 flex justify-between items-center">
                 <span>Restart Test</span>
                 <kbd className="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border">Tab + Enter</kbd>
               </div>
@@ -113,7 +114,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
         <div className="pt-4 border-t border-slate-200 dark:border-slate-700 text-right">
           <button
             onClick={onClose}
-            className="py-2.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md transition-colors cursor-pointer"
+            className="w-full sm:w-auto py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md transition-colors cursor-pointer min-h-[44px]"
           >
             Got it
           </button>

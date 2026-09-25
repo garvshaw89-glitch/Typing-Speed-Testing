@@ -54,13 +54,13 @@ export const Button: React.FC<ButtonProps> = ({
       'bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white shadow-md shadow-rose-600/25 border border-rose-500/30 focus-visible:ring-rose-500',
   };
 
-  // Size styling
+  // Size styling with touch-target ergonomics
   const sizeStyles: Record<ButtonSize, string> = {
-    xs: 'text-[11px] py-1.5 px-2.5 rounded-lg gap-1.5 font-semibold',
-    sm: 'text-xs py-2 px-3.5 rounded-xl gap-1.5 font-bold',
-    md: 'text-sm py-2.5 px-4.5 rounded-xl gap-2 font-bold',
-    lg: 'text-base py-3 px-6 rounded-2xl gap-2.5 font-extrabold',
-    xl: 'text-lg py-4 px-8 rounded-2xl gap-3 font-black tracking-tight',
+    xs: 'text-[11px] py-1.5 px-2.5 rounded-lg gap-1.5 font-semibold min-h-[36px]',
+    sm: 'text-xs py-2 px-3.5 rounded-xl gap-1.5 font-bold min-h-[42px] sm:min-h-[38px]',
+    md: 'text-sm py-2.5 px-4.5 rounded-xl gap-2 font-bold min-h-[44px]',
+    lg: 'text-base py-3 px-6 rounded-2xl gap-2.5 font-extrabold min-h-[48px]',
+    xl: 'text-base sm:text-lg py-3.5 sm:py-4 px-6 sm:px-8 rounded-2xl gap-3 font-black tracking-tight min-h-[52px]',
   };
 
   const isDisabled = disabled || isLoading;

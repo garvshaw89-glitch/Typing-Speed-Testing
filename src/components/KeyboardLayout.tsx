@@ -273,7 +273,11 @@ export const KeyboardLayout: React.FC<KeyboardLayoutProps> = ({
       </div>
 
       {/* Visual Keyboard Container (Responsive Scroll on Mobile) */}
-      <div className="overflow-x-auto pb-2 select-none">
+      <div className="sm:hidden text-center text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5 py-1">
+        <span>↔</span>
+        <span>Swipe horizontally to view full keyboard heatmap</span>
+      </div>
+      <div className="overflow-x-auto pb-2 select-none scrollbar-thin">
         <div className="min-w-[680px] p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-2xl space-y-2 font-mono">
           {KEYBOARD_ROWS.map((row, rowIndex) => (
             <div key={rowIndex} className="flex justify-center gap-1.5">
