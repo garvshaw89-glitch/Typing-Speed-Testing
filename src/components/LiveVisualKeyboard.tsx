@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Keyboard,
   Fingerprint,
@@ -7,11 +7,16 @@ import {
   ChevronDown,
   ChevronUp,
   Sliders,
-  HelpCircle,
-  Eye,
-  EyeOff,
   Sparkles,
+  Anchor,
+  Compass,
 } from 'lucide-react';
+import { KeyboardActiveColor, KeyboardHeatmapPalette } from '../types';
+import {
+  ACTIVE_COLOR_OPTIONS,
+  HEATMAP_PALETTE_OPTIONS,
+  calculateErgonomicTrajectory,
+} from '../utils/keyboardThemes';
 
 export type FingerType =
   | 'left-pinky'
@@ -69,6 +74,14 @@ interface LiveVisualKeyboardProps {
   initialMode?: 'fingers' | 'heatmap';
   /** Allow collapsing keyboard */
   collapsible?: boolean;
+  /** Whether to show the home row touch-typing guide */
+  showHomeRowGuide?: boolean;
+  /** Customizable active key accent color */
+  activeColor?: KeyboardActiveColor;
+  /** Customizable heatmap intensity color palette */
+  heatmapPalette?: KeyboardHeatmapPalette;
+  /** Callback on home row guide toggle */
+  onToggleHomeRowGuide?: (enabled: boolean) => void;
 }
 
 // Finger styling definitions
@@ -349,10 +362,26 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
   highContrast = false,
   initialMode = 'fingers',
   collapsible = true,
+  showHomeRowGuide = true,
+  activeColor = 'blue',
+  heatmapPalette = 'thermal',
+  onToggleHomeRowGuide,
 }) => {
   const [mode, setMode] = useState<'fingers' | 'heatmap'>(initialMode);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [showFingerStats, setShowFingerStats] = useState<boolean>(false);
+  const [isHomeRowGuideActive, setIsHomeRowGuideActive] = useState<boolean>(showHomeRowGuide);
+
+  // Sync prop changes
+  useEffect(() => {
+    if (showHomeRowGuide !== undefined) {
+      setIsHomeRowGuideActive(showHomeRowGuide);
+    }
+  }, [showHomeRowGuide]);
+
+  // Color Theme Configurations
+  const activeColorConfig = ACTIVE_COLOR_OPTIONS[activeColor] || ACTIVE_COLOR_OPTIONS.blue;
+  const heatmapPaletteConfig = HEATMAP_PALETTE_OPTIONS[heatmapPalette] || HEATMAP_PALETTE_OPTIONS.thermal;
 
   // Look up expected target key info
   const targetKeyInfo = useMemo(() => {
@@ -361,6 +390,12 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
 
   const targetConfig = targetKeyInfo.config;
   const needsShift = targetKeyInfo.needsShift;
+
+  // Ergonomic Trajectory from Home Row Anchor
+  const ergonomicTrajectory = useMemo(() => {
+    if (!targetConfig || !isHomeRowGuideActive) return null;
+    return calculateErgonomicTrajectory(targetConfig.id, targetConfig.finger);
+  }, [targetConfig, isHomeRowGuideActive]);
 
   // Determine which shift key to recommend (opposite hand rule for optimal ergonomics)
   const recommendedShiftKeyId = useMemo(() => {
@@ -510,13 +545,26 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
     return activeFingers.reduce((worst, cur) => (cur.accuracy < worst.accuracy ? cur : worst));
   }, [fingerAccuracyStats]);
 
+  const toggleHomeRow = () => {
+    const nextVal = !isHomeRowGuideActive;
+    setIsHomeRowGuideActive(nextVal);
+    if (onToggleHomeRowGuide) onToggleHomeRowGuide(nextVal);
+  };
+
   return (
     <div className="w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden transition-all duration-200">
       {/* Visual Keyboard Top Bar: Live Guidance & Controls */}
       <div className="px-3.5 py-2.5 sm:px-4 sm:py-3 bg-slate-50/80 dark:bg-slate-850/80 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
         {/* Left: Active Finger Beacon & Next Key Guidance */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-bold shrink-0">
+          <div
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold shrink-0 transition-colors"
+            style={{
+              borderColor: `${activeColorConfig.hex}55`,
+              backgroundColor: `${activeColorConfig.hex}18`,
+              color: activeColorConfig.hex,
+            }}
+          >
             <Keyboard className="w-4 h-4" />
             <span className="hidden sm:inline">Visual Guide</span>
           </div>
@@ -524,8 +572,17 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
           {targetConfig ? (
             <div className="flex items-center gap-2 text-xs truncate">
               <span className="text-slate-500 dark:text-slate-400 hidden xs:inline">Next key:</span>
-              <span className="px-2 py-0.5 rounded-md font-mono font-black text-xs bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 shadow-sm shrink-0">
-                {targetConfig.char === ' ' ? 'SPACE' : (needsShift ? targetConfig.shiftChar || targetConfig.char.toUpperCase() : targetConfig.displayLabel || targetConfig.char.toUpperCase())}
+              <span
+                className="px-2 py-0.5 rounded-md font-mono font-black text-xs bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 shadow-sm shrink-0"
+                style={{
+                  boxShadow: `0 0 8px ${activeColorConfig.hex}40`,
+                }}
+              >
+                {targetConfig.char === ' '
+                  ? 'SPACE'
+                  : needsShift
+                  ? targetConfig.shiftChar || targetConfig.char.toUpperCase()
+                  : targetConfig.displayLabel || targetConfig.char.toUpperCase()}
               </span>
               <span className="text-slate-400 dark:text-slate-500">→</span>
               <span
@@ -550,8 +607,22 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
           )}
         </div>
 
-        {/* Right: Mode Switcher & Expand/Collapse */}
+        {/* Right: Mode Switcher, Home Row Toggle & Expand/Collapse */}
         <div className="flex items-center gap-2 shrink-0 text-xs">
+          {/* Home Row Overlay Toggle Button */}
+          <button
+            onClick={toggleHomeRow}
+            className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              isHomeRowGuideActive
+                ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white'
+            }`}
+            title="Toggle Home Row touch-typing ergonomic rest guide"
+          >
+            <Anchor className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">Home Row</span>
+          </button>
+
           {/* Mode Switcher */}
           <div className="flex items-center p-0.5 rounded-lg bg-slate-200/70 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-[11px] font-bold">
             <button
@@ -607,6 +678,40 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
       {/* Main Body (Collapsed vs Expanded) */}
       {!isCollapsed && (
         <div className="p-3 sm:p-4 space-y-3">
+          {/* Home Row Ergonomic Trajectory Guide Banner */}
+          {isHomeRowGuideActive && ergonomicTrajectory && (
+            <div className="p-2.5 rounded-xl bg-slate-100/90 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 flex flex-wrap items-center justify-between gap-2.5 text-xs animate-slide-up font-mono">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md font-bold text-[10px] bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 flex items-center gap-1">
+                  <Anchor className="w-3 h-3" />
+                  <span>HOME ROW ANCHOR</span>
+                </span>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-slate-900 dark:text-white px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-750 border border-slate-300 dark:border-slate-700">
+                    [{ergonomicTrajectory.anchorLabel}]
+                  </span>
+                  <span className="text-blue-500 font-bold">
+                    ──{ergonomicTrajectory.directionIcon}──&gt;
+                  </span>
+                  <span
+                    className="font-black px-2 py-0.5 rounded text-white shadow-xs"
+                    style={{ backgroundColor: activeColorConfig.hex }}
+                  >
+                    [{targetConfig?.char === ' ' ? 'SPACE' : (needsShift ? targetConfig?.shiftChar || targetConfig?.char.toUpperCase() : targetConfig?.displayLabel || targetConfig?.char.toUpperCase())}]
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-[11px] font-sans text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                <Compass className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <span>
+                  <strong>{ergonomicTrajectory.fingerName}:</strong> {ergonomicTrajectory.reachDescription}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Real-Time Error Pattern Alert (when user slips) */}
           {latestErrorPattern && (
             <div className="p-2.5 rounded-xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/30 flex items-start justify-between gap-3 text-xs animate-slide-up">
@@ -658,6 +763,14 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                     const isRecommendedShift =
                       needsShift && recommendedShiftKeyId === keyId;
 
+                    // Home row guide states
+                    const isHomeRowRestKey = Boolean(keyConfig.isHomeRow);
+                    const isTargetAnchorKey =
+                      isHomeRowGuideActive &&
+                      ergonomicTrajectory &&
+                      ergonomicTrajectory.anchorKeyId === keyId &&
+                      !isTargetKey;
+
                     // Session stats for this key
                     const keyStatsData = keyStats[keyCharLower] || { total: 0, errors: 0 };
                     const hasErrorsOnKey = (errorKeyIds[keyId] || 0) > 0;
@@ -675,36 +788,43 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                       // Color-coded by finger placement zone
                       keyBg = `${fingerCfg.bgSubtleClass} ${fingerCfg.borderClass} ${fingerCfg.textColor}`;
                     } else if (mode === 'heatmap') {
-                      // Color-coded by live accuracy
+                      // Color-coded by live accuracy using selected heatmap palette
                       if (keyStatsData.total > 0) {
                         const errorRate = (keyStatsData.errors / keyStatsData.total) * 100;
                         if (errorRate >= 20) {
-                          keyBg = 'bg-rose-950/70 border-rose-500/80 text-rose-200';
+                          keyBg = `${heatmapPaletteConfig.criticalClass} ${heatmapPaletteConfig.criticalGlow}`;
                         } else if (errorRate >= 8) {
-                          keyBg = 'bg-amber-950/60 border-amber-500/70 text-amber-200';
+                          keyBg = heatmapPaletteConfig.moderateClass;
                         } else {
-                          keyBg = 'bg-emerald-950/60 border-emerald-500/70 text-emerald-200';
+                          keyBg = heatmapPaletteConfig.optimalClass;
                         }
                       } else {
-                        keyBg = 'bg-slate-900 border-slate-800 text-slate-400';
+                        keyBg = heatmapPaletteConfig.untestedClass;
                       }
+                    }
+
+                    // Home Row Rest Outline (when enabled)
+                    if (isHomeRowGuideActive && isHomeRowRestKey && !isTargetKey && !isRecentlyPressed) {
+                      keyBg += ' border-dashed border-slate-600/90';
                     }
 
                     // Keypress active state override
                     if (wasSuccessOnThisKey) {
-                      keyBg =
-                        'bg-emerald-600 text-white border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.5)]';
+                      keyBg = `${activeColorConfig.successBg} ${activeColorConfig.successBorder} ${activeColorConfig.successGlow}`;
                       animationClass = reduceMotion ? '' : 'animate-key-success';
                     } else if (wasErrorOnThisKey) {
                       keyBg =
                         'bg-rose-600 text-white border-rose-400 shadow-[0_0_14px_rgba(244,63,94,0.6)]';
                       animationClass = reduceMotion ? '' : 'animate-key-error';
                     } else if (isTargetKey) {
-                      // Pulse next target key with prominent beacon
-                      keyBg =
-                        'bg-blue-600/30 text-blue-200 border-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.5)]';
-                      ringStyle = 'ring-2 ring-blue-400/90 z-10';
+                      // Pulse next target key with configured active accent color
+                      keyBg = `${activeColorConfig.targetBg} ${activeColorConfig.targetBorder} ${activeColorConfig.targetGlow}`;
+                      ringStyle = `${activeColorConfig.targetRing} z-10`;
                       animationClass = reduceMotion ? '' : 'animate-key-beacon';
+                    } else if (isTargetAnchorKey) {
+                      // Home row anchor key indicator
+                      keyBg = `${activeColorConfig.anchorBg} ${activeColorConfig.anchorBorder} ${activeColorConfig.anchorGlow}`;
+                      ringStyle = 'z-10';
                     } else if (isRecommendedShift) {
                       // Highlight shift key when uppercase needed
                       keyBg =
@@ -723,6 +843,8 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                         style={widthStyle}
                         className={`h-10 sm:h-11 min-w-[28px] rounded-lg border flex flex-col items-center justify-between p-1 text-[11px] sm:text-xs font-semibold relative transition-all duration-150 select-none shadow-xs ${keyBg} ${ringStyle} ${animationClass}`}
                         title={`${keyConfig.displayLabel || keyConfig.char.toUpperCase()} (${keyConfig.fingerLabel})${
+                          isHomeRowRestKey ? ' [Home Row Rest]' : ''
+                        }${
                           keyStatsData.total > 0
                             ? ` - ${keyStatsData.total} typed, ${keyStatsData.errors} errors`
                             : ''
@@ -734,8 +856,19 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                             {keyConfig.displayLabel || keyConfig.char.toUpperCase()}
                           </span>
 
+                          {/* Home Row Anchor Badge */}
+                          {isTargetAnchorKey && (
+                            <span
+                              className="px-1 py-0.2 rounded-full font-bold text-[8px] leading-none animate-pulse"
+                              style={{ backgroundColor: activeColorConfig.hex, color: '#fff' }}
+                              title="Rest Anchor for this finger"
+                            >
+                              ⚓
+                            </span>
+                          )}
+
                           {/* Error count badge on key */}
-                          {hasErrorsOnKey && (
+                          {!isTargetAnchorKey && hasErrorsOnKey && (
                             <span
                               className="px-1 py-0.2 rounded-full bg-rose-600 text-white font-mono text-[8px] font-bold leading-none shadow-xs"
                               title={`${keyErrorCount} mistake(s) during this test`}
@@ -750,9 +883,17 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                           <div className="w-2.5 h-0.5 rounded-full bg-slate-400/80 dark:bg-slate-300/80 shadow-xs mb-0.5" />
                         )}
 
+                        {/* Home Row Rest Marker Dot when enabled */}
+                        {isHomeRowGuideActive && isHomeRowRestKey && !keyConfig.hasTactileBump && !isTargetKey && (
+                          <div className="w-1 h-1 rounded-full bg-slate-500/50 mb-0.5" />
+                        )}
+
                         {/* Target Key Finger Indicator Dot */}
                         {isTargetKey && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping absolute bottom-1" />
+                          <div
+                            className="w-1.5 h-1.5 rounded-full animate-ping absolute bottom-1"
+                            style={{ backgroundColor: activeColorConfig.hex }}
+                          />
                         )}
                       </div>
                     );
@@ -795,7 +936,7 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                       className={`p-2 rounded-lg border transition-all ${
                         isStruggling
                           ? 'bg-rose-50/60 dark:bg-rose-950/20 border-rose-300/80 dark:border-rose-900/60'
-                          : 'bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-700/60'
+                          : 'bg-white dark:bg-slate-855 border-slate-200 dark:border-slate-700/60'
                       }`}
                     >
                       <div className="flex items-center justify-between text-[11px] font-semibold">
@@ -848,13 +989,13 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                 <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-700 dark:text-amber-300 flex items-center gap-2">
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    Focus Target: Your <strong>{weakestFinger.name}</strong> currently has the most errors ({weakestFinger.errors} missed, {weakestFinger.accuracy}% acc). Practice maintaining a relaxed grip.
+                    Focus Target: Your <strong>{weakestFinger.name}</strong> currently has the most errors ({weakestFinger.errors} missed, {weakestFinger.accuracy}% acc). Practice maintaining relaxed rest posture on Home Row.
                   </span>
                 </div>
               )}
             </div>
           ) : (
-            /* Compact Finger Zone Legend */
+            /* Compact Finger Zone & Home Row Guide Footer */
             <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400 px-1">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Finger Zones:</span>
@@ -884,13 +1025,22 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
                 </span>
               </div>
 
-              <button
-                onClick={() => setShowFingerStats(true)}
-                className="text-blue-600 dark:text-blue-400 hover:underline font-bold flex items-center gap-1 cursor-pointer"
-              >
-                <span>View Finger Accuracy Stats</span>
-                <span>→</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={toggleHomeRow}
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Anchor className="w-3 h-3" />
+                  <span>{isHomeRowGuideActive ? 'Hide Home Row' : 'Show Home Row'}</span>
+                </button>
+                <button
+                  onClick={() => setShowFingerStats(true)}
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Finger Accuracy</span>
+                  <span>→</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

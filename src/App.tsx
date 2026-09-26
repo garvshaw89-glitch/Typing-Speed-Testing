@@ -210,6 +210,7 @@ export default function App() {
           <ResultsScreen
             result={currentResult}
             stats={stats}
+            preferences={preferences}
             newlyUnlockedAchievements={recentUnlockedAchievements}
             onTryAgain={currentResult.isWarmup ? handleStartWarmup : handleStartTest}
             onStartTest={handleStartTest}
@@ -226,6 +227,7 @@ export default function App() {
           <HistoryScreen
             history={history}
             stats={stats}
+            preferences={preferences}
             initialViewMode={historyInitialTab}
             onRefreshHistory={refreshHistoryAndStats}
             onBackToHome={() => setScreen('home')}

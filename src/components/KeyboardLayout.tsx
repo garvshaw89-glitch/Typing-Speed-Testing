@@ -1,5 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { TestResult } from '../types';
+import { TestResult, KeyboardActiveColor, KeyboardHeatmapPalette } from '../types';
+import {
+  ACTIVE_COLOR_OPTIONS,
+  HEATMAP_PALETTE_OPTIONS,
+} from '../utils/keyboardThemes';
 import {
   AlertCircle,
   CheckCircle2,
@@ -16,6 +20,7 @@ import {
   TrendingDown,
   Layers,
   Info,
+  Palette,
 } from 'lucide-react';
 
 interface KeyboardLayoutProps {
@@ -23,6 +28,8 @@ interface KeyboardLayoutProps {
   singleResult?: TestResult;
   title?: string;
   subtitle?: string;
+  initialPalette?: KeyboardHeatmapPalette;
+  activeColor?: KeyboardActiveColor;
 }
 
 // Key definition layout structure
@@ -135,6 +142,8 @@ export const KeyboardLayout: React.FC<KeyboardLayoutProps> = ({
   singleResult,
   title = 'Keystroke Heatmap & Weak Key Telemetry',
   subtitle = 'Identify precision bottlenecks, misstrike confusion patterns, and finger biomechanics',
+  initialPalette = 'thermal',
+  activeColor = 'blue',
 }) => {
   // Filters & State
   const [activeScope, setActiveScope] = useState<HeatmapScope>(
@@ -143,6 +152,10 @@ export const KeyboardLayout: React.FC<KeyboardLayoutProps> = ({
   const [metricMode, setMetricMode] = useState<HeatmapMetricMode>('errorRate');
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
   const [copiedKeyInfo, setCopiedKeyInfo] = useState<boolean>(false);
+  const [currentPalette, setCurrentPalette] = useState<KeyboardHeatmapPalette>(initialPalette);
+
+  const paletteConfig = HEATMAP_PALETTE_OPTIONS[currentPalette] || HEATMAP_PALETTE_OPTIONS.thermal;
+  const activeColorConfig = ACTIVE_COLOR_OPTIONS[activeColor] || ACTIVE_COLOR_OPTIONS.blue;
 
   // Filter history based on selected scope
   const filteredResults = useMemo(() => {
@@ -548,30 +561,69 @@ Biomechanical Stress: Left Hand ${biomechanicalBreakdown.leftAcc}% | Right Hand 
         </button>
       </div>
 
-      {/* Scientific Thermal Heatmap Legend */}
-      <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300">
-          <Flame className="w-4 h-4 text-rose-500" />
-          <span>Thermal Spectrum:</span>
+      {/* Scientific Thermal Heatmap Legend with Palette Switcher */}
+      <div className="p-3 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300">
+            <Flame className="w-4 h-4 text-rose-500" />
+            <span>Thermal Spectrum:</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span
+                className="w-3 h-3 rounded-md border"
+                style={{ backgroundColor: paletteConfig.gradientStops[2], borderColor: paletteConfig.gradientStops[2] }}
+              />
+              <span className="text-slate-700 dark:text-slate-300 font-medium">Critical (&ge;25% err)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="w-3 h-3 rounded-md border"
+                style={{ backgroundColor: paletteConfig.gradientStops[1], borderColor: paletteConfig.gradientStops[1] }}
+              />
+              <span className="text-slate-700 dark:text-slate-300 font-medium">Moderate (10-24%)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="w-3 h-3 rounded-md border"
+                style={{ backgroundColor: paletteConfig.gradientStops[0], borderColor: paletteConfig.gradientStops[0] }}
+              />
+              <span className="text-slate-700 dark:text-slate-300 font-medium">Optimal (&lt;10%)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-md bg-slate-800 border border-slate-700" />
+              <span className="text-slate-400 font-medium">Untested</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-md bg-rose-600 border border-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
-            <span className="text-slate-700 dark:text-slate-300 font-medium">Critical Bottleneck (&ge;25% err)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-md bg-amber-500 border border-amber-300" />
-            <span className="text-slate-700 dark:text-slate-300 font-medium">Moderate Friction (10-24%)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-md bg-emerald-600/80 border border-emerald-400" />
-            <span className="text-slate-700 dark:text-slate-300 font-medium">Optimal Mastery (&lt;10%)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-md bg-slate-800 border border-slate-700" />
-            <span className="text-slate-400 font-medium">Untested</span>
-          </div>
+        {/* Heatmap Palette Switcher Chips */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300/80 dark:border-slate-700 text-[11px] font-bold">
+          <Palette className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-0.5" />
+          {(Object.keys(HEATMAP_PALETTE_OPTIONS) as KeyboardHeatmapPalette[]).map((pKey) => {
+            const pCfg = HEATMAP_PALETTE_OPTIONS[pKey];
+            const isSelected = currentPalette === pKey;
+            return (
+              <button
+                key={pKey}
+                onClick={() => setCurrentPalette(pKey)}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title={`Switch Heatmap to ${pCfg.name} (${pCfg.description})`}
+              >
+                <span className="flex items-center gap-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: pCfg.gradientStops[0] }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: pCfg.gradientStops[1] }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: pCfg.gradientStops[2] }} />
+                </span>
+                <span className="hidden sm:inline">{pCfg.name.split(' ')[0]}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -610,22 +662,21 @@ Biomechanical Stress: Left Hand ${biomechanicalBreakdown.leftAcc}% | Right Hand 
 
                   if (metricMode === 'errorRate') {
                     if (errorRate >= 25) {
-                      keyBg =
-                        'bg-rose-950/80 border-rose-500 text-rose-100 font-extrabold shadow-[0_0_12px_rgba(244,63,94,0.4)] animate-pulse';
+                      keyBg = `${paletteConfig.criticalClass} ${paletteConfig.criticalGlow} font-extrabold animate-pulse`;
                       indicatorBadge = (
-                        <span className="text-[9px] font-bold text-rose-300 tabular-nums">
+                        <span className="text-[9px] font-bold tabular-nums">
                           {Math.round(errorRate)}%
                         </span>
                       );
                     } else if (errorRate >= 10) {
-                      keyBg = 'bg-amber-950/70 border-amber-500 text-amber-100 font-bold';
+                      keyBg = `${paletteConfig.moderateClass} font-bold`;
                       indicatorBadge = (
-                        <span className="text-[9px] font-semibold text-amber-300 tabular-nums">
+                        <span className="text-[9px] font-semibold tabular-nums">
                           {Math.round(errorRate)}%
                         </span>
                       );
                     } else {
-                      keyBg = 'bg-emerald-950/60 border-emerald-500/70 text-emerald-200';
+                      keyBg = paletteConfig.optimalClass;
                       indicatorBadge = (
                         <span className="text-[9px] opacity-75 tabular-nums">
                           {Math.round(errorRate)}%
@@ -635,29 +686,28 @@ Biomechanical Stress: Left Hand ${biomechanicalBreakdown.leftAcc}% | Right Hand 
                   } else if (metricMode === 'errorCount') {
                     // Absolute error count
                     if (keyData.errors >= 4) {
-                      keyBg =
-                        'bg-rose-950/80 border-rose-500 text-rose-100 font-extrabold shadow-[0_0_12px_rgba(244,63,94,0.4)]';
+                      keyBg = `${paletteConfig.criticalClass} ${paletteConfig.criticalGlow} font-extrabold`;
                       indicatorBadge = (
-                        <span className="text-[9px] font-bold text-rose-300 tabular-nums">
+                        <span className="text-[9px] font-bold tabular-nums">
                           ✕{keyData.errors}
                         </span>
                       );
                     } else if (keyData.errors > 0) {
-                      keyBg = 'bg-amber-950/70 border-amber-500 text-amber-100';
+                      keyBg = `${paletteConfig.moderateClass} font-bold`;
                       indicatorBadge = (
-                        <span className="text-[9px] text-amber-300 tabular-nums">
+                        <span className="text-[9px] tabular-nums">
                           ✕{keyData.errors}
                         </span>
                       );
                     } else {
-                      keyBg = 'bg-emerald-950/60 border-emerald-500/70 text-emerald-200';
+                      keyBg = paletteConfig.optimalClass;
                       indicatorBadge = <span className="text-[9px] opacity-70">✓</span>;
                     }
                   }
                 }
 
                 if (isSelected) {
-                  ringStyle = 'ring-2 ring-blue-400 border-blue-400 scale-105 z-20 shadow-lg shadow-blue-500/30';
+                  ringStyle = `ring-2 ${activeColorConfig.targetBorder} ${activeColorConfig.targetGlow} scale-105 z-20 shadow-lg`;
                 }
 
                 const widthStyle = keyConfig.width

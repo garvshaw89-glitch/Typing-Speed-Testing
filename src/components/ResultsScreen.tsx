@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Achievement, TestResult, UserStats } from '../types';
+import { Achievement, TestResult, UserStats, UserPreferences } from '../types';
 import { getPerformanceRating, getRhythmRating } from '../utils/calculations';
 import { getAllAchievements } from '../services/achievementService';
 import { submitLeaderboardScore } from '../services/leaderboardService';
@@ -38,6 +38,7 @@ import {
 interface ResultsScreenProps {
   result: TestResult;
   stats: UserStats;
+  preferences?: UserPreferences;
   newlyUnlockedAchievements?: Achievement[];
   onTryAgain: () => void;
   onNewTest: () => void;
@@ -80,6 +81,7 @@ function useCountUp(target: number, durationMs = 600) {
 export const ResultsScreen: React.FC<ResultsScreenProps> = ({
   result,
   stats,
+  preferences,
   newlyUnlockedAchievements = [],
   onTryAgain,
   onNewTest,
@@ -609,6 +611,8 @@ export const ResultsScreen: React.FC<ResultsScreenProps> = ({
         singleResult={result}
         title="Session Keystroke Accuracy"
         subtitle="Visual key breakdown for this specific typing session"
+        initialPalette={preferences?.keyboardHeatmapPalette}
+        activeColor={preferences?.keyboardActiveColor}
       />
 
       {/* Action Buttons with Universal Button States */}

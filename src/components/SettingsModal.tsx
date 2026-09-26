@@ -6,7 +6,13 @@ import {
   ThemeMode,
   FontSizeOption,
   SoundPack,
+  KeyboardActiveColor,
+  KeyboardHeatmapPalette,
 } from '../types';
+import {
+  ACTIVE_COLOR_OPTIONS,
+  HEATMAP_PALETTE_OPTIONS,
+} from '../utils/keyboardThemes';
 import { resetPreferencesToDefault } from '../services/storageService';
 import { soundEngine } from '../services/soundEngine';
 import {
@@ -23,6 +29,10 @@ import {
   Type,
   Target,
   Sparkles,
+  Keyboard,
+  Anchor,
+  Palette,
+  Flame,
 } from 'lucide-react';
 
 interface SoundPackOption {
@@ -530,6 +540,141 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                 />
               </label>
+
+              {/* Home Row Ergonomic Guide */}
+              <label className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
+                <div>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 block flex items-center gap-1.5">
+                    <Anchor className="w-4 h-4 text-blue-500" />
+                    <span>Home Row Ergonomic Guide</span>
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    Highlights home row rest anchors (A S D F - J K L ;) and active finger reach trajectory
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={localPrefs.showHomeRowGuide ?? true}
+                  onChange={(e) =>
+                    setLocalPrefs({ ...localPrefs, showHomeRowGuide: e.target.checked })
+                  }
+                  className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Visual Keyboard & Heatmap Color Accents Customization */}
+          <div className="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Palette className="w-4 h-4 text-blue-500" />
+                <span>Visual Keyboard & Heatmap Color Accents</span>
+              </div>
+              <span className="text-[11px] font-mono text-slate-400">Custom UI/UX Theme</span>
+            </div>
+
+            {/* Primary Active Key Color Accent */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                Primary Active Key Accent Color
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {(Object.keys(ACTIVE_COLOR_OPTIONS) as KeyboardActiveColor[]).map((colorKey) => {
+                  const cfg = ACTIVE_COLOR_OPTIONS[colorKey];
+                  const isSelected = (localPrefs.keyboardActiveColor || 'blue') === colorKey;
+
+                  return (
+                    <button
+                      key={colorKey}
+                      type="button"
+                      onClick={() =>
+                        setLocalPrefs({ ...localPrefs, keyboardActiveColor: colorKey })
+                      }
+                      className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-semibold transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-slate-100 dark:bg-slate-800 border-slate-400 dark:border-slate-500 ring-2 ring-blue-500/50 shadow-sm'
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-850'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-4 h-4 rounded-full shadow-xs shrink-0"
+                          style={{ backgroundColor: cfg.hex }}
+                        />
+                        <span className="text-slate-800 dark:text-slate-200">{cfg.name}</span>
+                      </div>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Heatmap Intensity Colors Palette */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Heatmap Intensity Spectrum Palette</span>
+                </label>
+                <span className="text-[11px] text-slate-400">Optimal → Moderate → Critical</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {(Object.keys(HEATMAP_PALETTE_OPTIONS) as KeyboardHeatmapPalette[]).map(
+                  (paletteKey) => {
+                    const pCfg = HEATMAP_PALETTE_OPTIONS[paletteKey];
+                    const isSelected =
+                      (localPrefs.keyboardHeatmapPalette || 'thermal') === paletteKey;
+
+                    return (
+                      <button
+                        key={paletteKey}
+                        type="button"
+                        onClick={() =>
+                          setLocalPrefs({ ...localPrefs, keyboardHeatmapPalette: paletteKey })
+                        }
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                          isSelected
+                            ? 'bg-slate-100 dark:bg-slate-800 border-slate-400 dark:border-slate-500 ring-2 ring-blue-500/50 shadow-sm'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-850'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <span className="font-bold text-xs text-slate-900 dark:text-white">
+                            {pCfg.name}
+                          </span>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
+                        </div>
+
+                        {/* 3-Stop Spectrum Pill */}
+                        <div className="flex items-center gap-1.5 w-full">
+                          <div
+                            className="h-2 flex-1 rounded-full shadow-xs"
+                            style={{ backgroundColor: pCfg.gradientStops[0] }}
+                            title="Optimal Accuracy (<10% error)"
+                          />
+                          <div
+                            className="h-2 flex-1 rounded-full shadow-xs"
+                            style={{ backgroundColor: pCfg.gradientStops[1] }}
+                            title="Moderate Friction (10-24% error)"
+                          />
+                          <div
+                            className="h-2 flex-1 rounded-full shadow-xs"
+                            style={{ backgroundColor: pCfg.gradientStops[2] }}
+                            title="Critical Bottleneck (>=25% error)"
+                          />
+                        </div>
+
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                          {pCfg.description}
+                        </span>
+                      </button>
+                    );
+                  }
+                )}
+              </div>
             </div>
           </div>
 

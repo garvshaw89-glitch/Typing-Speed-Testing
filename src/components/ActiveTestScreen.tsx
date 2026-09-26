@@ -869,6 +869,9 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
           reduceMotion={preferences.reduceMotion}
           highContrast={preferences.highContrastMode}
           initialMode={preferences.visualKeyboardMode || 'fingers'}
+          showHomeRowGuide={preferences.showHomeRowGuide ?? true}
+          activeColor={preferences.keyboardActiveColor || 'blue'}
+          heatmapPalette={preferences.keyboardHeatmapPalette || 'thermal'}
           collapsible={true}
         />
       )}

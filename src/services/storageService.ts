@@ -35,6 +35,9 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   showVisualKeyboard: true,
   visualKeyboardMode: 'fingers',
   showFingerGuides: true,
+  showHomeRowGuide: true,
+  keyboardActiveColor: 'blue',
+  keyboardHeatmapPalette: 'thermal',
   autoStartCountdown: true,
   targetWpm: 60,
   lastUpdated: Date.now(),
@@ -65,6 +68,9 @@ export function getPreferences(): UserPreferences {
       showVisualKeyboard: parsed.showVisualKeyboard ?? true,
       visualKeyboardMode: parsed.visualKeyboardMode || 'fingers',
       showFingerGuides: parsed.showFingerGuides ?? true,
+      showHomeRowGuide: parsed.showHomeRowGuide ?? true,
+      keyboardActiveColor: parsed.keyboardActiveColor || 'blue',
+      keyboardHeatmapPalette: parsed.keyboardHeatmapPalette || 'thermal',
     };
   } catch (e) {
     console.error('Failed to parse preferences from localStorage', e);

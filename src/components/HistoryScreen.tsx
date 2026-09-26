@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { TestResult, UserStats } from '../types';
+import { TestResult, UserStats, UserPreferences } from '../types';
 import { exportHistoryToCSV, deleteTestResult, clearAllHistory } from '../services/storageService';
 import { getAllAchievements } from '../services/achievementService';
 import { KeyboardLayout } from './KeyboardLayout';
@@ -35,6 +35,7 @@ import {
 interface HistoryScreenProps {
   history: TestResult[];
   stats: UserStats;
+  preferences?: UserPreferences;
   onRefreshHistory: () => void;
   onBackToHome: () => void;
   onShowToast: (message: string, type: 'success' | 'info') => void;
@@ -49,6 +50,7 @@ export type ViewMode = 'list' | 'chart' | 'keyboard' | 'trophies';
 export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   history,
   stats,
+  preferences,
   onRefreshHistory,
   onBackToHome,
   onShowToast,
@@ -588,6 +590,8 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
           history={filteredHistory}
           title="Typing Accuracy & Struggle Keys Heatmap"
           subtitle="Aggregated character accuracy analysis based on your selected test history range"
+          initialPalette={preferences?.keyboardHeatmapPalette}
+          activeColor={preferences?.keyboardActiveColor}
         />
       )}
 

@@ -28,6 +28,9 @@ export interface Achievement {
   rewardText: string;
 }
 
+export type KeyboardActiveColor = 'blue' | 'emerald' | 'purple' | 'amber' | 'cyan' | 'rose';
+export type KeyboardHeatmapPalette = 'thermal' | 'cyberpunk' | 'matrix' | 'sunset' | 'ocean';
+
 export interface UserPreferences {
   testDuration: number; // in seconds (e.g. 15, 30, 60, 120, or custom)
   testMode: TestMode;
@@ -53,6 +56,9 @@ export interface UserPreferences {
   showVisualKeyboard?: boolean;
   visualKeyboardMode?: 'fingers' | 'heatmap';
   showFingerGuides?: boolean;
+  showHomeRowGuide?: boolean;
+  keyboardActiveColor?: KeyboardActiveColor;
+  keyboardHeatmapPalette?: KeyboardHeatmapPalette;
   autoStartCountdown: boolean;
   targetWpm?: number;
   lastUpdated: number;
