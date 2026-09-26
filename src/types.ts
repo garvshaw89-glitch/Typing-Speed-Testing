@@ -111,7 +111,19 @@ export interface TestResult {
   pauseCount?: number;
   isPersonalBest: boolean;
   notes?: string;
-  keyStats?: Record<string, { total: number; errors: number }>;
+  keyStats?: Record<string, { total: number; errors: number; mistakesAgainst?: Record<string, number> }>;
+}
+
+export interface KeyHeatmapRecord {
+  key: string;
+  total: number;
+  errors: number;
+  errorRate: number; // 0 - 100
+  accuracy: number;  // 0 - 100
+  finger: string;
+  hand: 'left' | 'right' | 'both';
+  severity: 'untested' | 'mastered' | 'optimal' | 'moderate' | 'struggle' | 'critical';
+  mistakesAgainst?: Record<string, number>;
 }
 
 export interface UserStats {

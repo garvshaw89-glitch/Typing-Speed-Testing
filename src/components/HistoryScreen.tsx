@@ -642,14 +642,24 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
                         {item.errors}
                       </td>
                       <td className="py-3 px-2 sm:px-3 text-right">
-                        <button
-                          onClick={() => handleDeleteItem(item.testId)}
-                          className="w-9 h-9 min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                          title="Delete Record"
-                          aria-label="Delete test record"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => setViewMode('keyboard')}
+                            className="w-9 h-9 min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                            title="Inspect Key Heatmap"
+                            aria-label="Inspect Key Heatmap"
+                          >
+                            <Keyboard className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteItem(item.testId)}
+                            className="w-9 h-9 min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                            title="Delete Record"
+                            aria-label="Delete test record"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

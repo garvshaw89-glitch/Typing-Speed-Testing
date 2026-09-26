@@ -91,7 +91,9 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
   const progressionRef = useRef<WpmProgressionPoint[]>([]);
   const lastProgressionSecRef = useRef<number>(0);
   const hasTriggeredTargetAlertRef = useRef<boolean>(false);
-  const keyStatsRef = useRef<Record<string, { total: number; errors: number }>>({});
+  const keyStatsRef = useRef<
+    Record<string, { total: number; errors: number; mistakesAgainst?: Record<string, number> }>
+  >({});
 
   // Mutable refs to prevent closure bugs
   const typedTextRef = useRef<string>(typedText);
@@ -415,11 +417,17 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
       if (targetChar) {
         const keyKey = targetChar.toLowerCase();
         if (!keyStatsRef.current[keyKey]) {
-          keyStatsRef.current[keyKey] = { total: 0, errors: 0 };
+          keyStatsRef.current[keyKey] = { total: 0, errors: 0, mistakesAgainst: {} };
         }
         keyStatsRef.current[keyKey].total += 1;
         if (!isCorrect) {
           keyStatsRef.current[keyKey].errors += 1;
+          if (!keyStatsRef.current[keyKey].mistakesAgainst) {
+            keyStatsRef.current[keyKey].mistakesAgainst = {};
+          }
+          const mistypedChar = typedChar.toLowerCase() || 'other';
+          keyStatsRef.current[keyKey].mistakesAgainst![mistypedChar] =
+            (keyStatsRef.current[keyKey].mistakesAgainst![mistypedChar] || 0) + 1;
         }
         setLiveKeyStats({ ...keyStatsRef.current });
       }

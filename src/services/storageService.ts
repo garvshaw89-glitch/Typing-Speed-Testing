@@ -2,6 +2,13 @@ import { TestResult, UserPreferences, UserStats } from '../types';
 
 const PREFS_KEY = 'typingTest_preferences';
 const HISTORY_KEY = 'typingTest_history';
+const KEY_STATS_KEY = 'typingTest_key_stats';
+
+export interface PersistentKeyStats {
+  total: number;
+  errors: number;
+  mistakesAgainst?: Record<string, number>;
+}
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
   testDuration: 60,
@@ -115,6 +122,11 @@ export function saveTestResult(result: TestResult): { saved: boolean; isPersonal
     const updatedHistory = [resultWithPB, ...history];
     localStorage.setItem(HISTORY_KEY, JSON.stringify(updatedHistory));
 
+    // Update cumulative lifetime key error stats
+    if (result.keyStats) {
+      updateLifetimeKeyStats(result.keyStats);
+    }
+
     return { saved: true, isPersonalBest };
   } catch (e) {
     console.error('Failed to save test result', e);
@@ -174,11 +186,95 @@ export function clearAllHistory(): boolean {
     const history = getTestHistory();
     history.forEach((r) => localStorage.removeItem(`typingTest_${r.testId}`));
     localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(KEY_STATS_KEY);
     return true;
   } catch (e) {
     console.error('Failed to clear history', e);
     return false;
   }
+}
+
+/**
+ * Updates cumulative lifetime key stats with a new session's keyStats.
+ */
+export function updateLifetimeKeyStats(
+  sessionStats: Record<string, { total: number; errors: number; mistakesAgainst?: Record<string, number> }>
+): Record<string, PersistentKeyStats> {
+  try {
+    const existing = getLifetimeKeyStats();
+    Object.entries(sessionStats).forEach(([key, data]) => {
+      const lower = key.toLowerCase();
+      if (!existing[lower]) {
+        existing[lower] = { total: 0, errors: 0, mistakesAgainst: {} };
+      }
+      existing[lower].total += data.total;
+      existing[lower].errors += data.errors;
+      if (data.mistakesAgainst) {
+        if (!existing[lower].mistakesAgainst) {
+          existing[lower].mistakesAgainst = {};
+        }
+        Object.entries(data.mistakesAgainst).forEach(([mKey, count]) => {
+          existing[lower].mistakesAgainst![mKey] = (existing[lower].mistakesAgainst![mKey] || 0) + count;
+        });
+      }
+    });
+    localStorage.setItem(KEY_STATS_KEY, JSON.stringify(existing));
+    return existing;
+  } catch (e) {
+    console.error('Failed to update lifetime key stats', e);
+    return {};
+  }
+}
+
+/**
+ * Retrieves cumulative lifetime key stats across all completed tests.
+ */
+export function getLifetimeKeyStats(): Record<string, PersistentKeyStats> {
+  try {
+    const raw = localStorage.getItem(KEY_STATS_KEY);
+    if (!raw) {
+      // Rebuild from existing history if available
+      const history = getTestHistory();
+      if (history.length > 0) {
+        return aggregateKeyStatsFromHistory(history);
+      }
+      return {};
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Failed to retrieve lifetime key stats', e);
+    return {};
+  }
+}
+
+/**
+ * Aggregates key stats dynamically from any list of TestResult items.
+ */
+export function aggregateKeyStatsFromHistory(
+  history: TestResult[]
+): Record<string, PersistentKeyStats> {
+  const result: Record<string, PersistentKeyStats> = {};
+  history.forEach((test) => {
+    if (test.keyStats) {
+      Object.entries(test.keyStats).forEach(([key, data]) => {
+        const lower = key.toLowerCase();
+        if (!result[lower]) {
+          result[lower] = { total: 0, errors: 0, mistakesAgainst: {} };
+        }
+        result[lower].total += data.total;
+        result[lower].errors += data.errors;
+        if (data.mistakesAgainst) {
+          if (!result[lower].mistakesAgainst) {
+            result[lower].mistakesAgainst = {};
+          }
+          Object.entries(data.mistakesAgainst).forEach(([mKey, count]) => {
+            result[lower].mistakesAgainst![mKey] = (result[lower].mistakesAgainst![mKey] || 0) + count;
+          });
+        }
+      });
+    }
+  });
+  return result;
 }
 
 /**
