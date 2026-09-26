@@ -25,9 +25,11 @@ import {
   Eye,
   EyeOff,
   Quote,
+  Keyboard,
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { TypingRhythmSparkline, KeystrokeRhythmPoint } from './TypingRhythmSparkline';
+import { LiveVisualKeyboard, LiveKeystrokeEvent } from './LiveVisualKeyboard';
 
 interface ActiveTestScreenProps {
   preferences: UserPreferences;
@@ -77,6 +79,11 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
   const [rhythmPoints, setRhythmPoints] = useState<KeystrokeRhythmPoint[]>([]);
   const rhythmPointsRef = useRef<KeystrokeRhythmPoint[]>([]);
   const [activePauseMs, setActivePauseMs] = useState<number | null>(null);
+  const [showKeyboard, setShowKeyboard] = useState<boolean>(
+    preferences.showVisualKeyboard !== false
+  );
+  const [lastKeystroke, setLastKeystroke] = useState<LiveKeystrokeEvent | null>(null);
+  const [liveKeyStats, setLiveKeyStats] = useState<Record<string, { total: number; errors: number }>>({});
 
   // Real-time tracking
   const charTimingsRef = useRef<number[]>([]);
@@ -395,6 +402,15 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
     setActivePauseMs(null);
 
     if (value.length > typedText.length && newCharIndex >= 0) {
+      const isCorrect = typedChar === targetChar;
+
+      // Update live keystroke for real-time visual keyboard highlighting
+      setLastKeystroke({
+        key: typedChar,
+        targetKey: targetChar,
+        isCorrect,
+        timestamp: now,
+      });
 
       if (targetChar) {
         const keyKey = targetChar.toLowerCase();
@@ -402,12 +418,13 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
           keyStatsRef.current[keyKey] = { total: 0, errors: 0 };
         }
         keyStatsRef.current[keyKey].total += 1;
-        if (typedChar !== targetChar) {
+        if (!isCorrect) {
           keyStatsRef.current[keyKey].errors += 1;
         }
+        setLiveKeyStats({ ...keyStatsRef.current });
       }
 
-      if (typedChar === targetChar) {
+      if (isCorrect) {
         setHasErrorOnLastKeystroke(false);
         if (isWarmupMode) {
           soundEngine.playWarmupKeyClick();
@@ -425,6 +442,12 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
     } else if (value.length < typedText.length) {
       soundEngine.playBackspaceSound();
       setHasErrorOnLastKeystroke(false);
+      setLastKeystroke({
+        key: 'backspace',
+        targetKey: '',
+        isCorrect: true,
+        timestamp: now,
+      });
     }
 
     setTypedText(value);
@@ -472,6 +495,8 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
     charTimingsRef.current = [];
     progressionRef.current = [];
     keyStatsRef.current = {};
+    setLiveKeyStats({});
+    setLastKeystroke(null);
     lastKeyTimeRef.current = null;
     rhythmPointsRef.current = [];
     setRhythmPoints([]);
@@ -632,8 +657,20 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
             </div>
           )}
 
-          {/* Controls: Zen mode, Restart, Exit (with min 44px touch targets) */}
+          {/* Controls: Zen mode, Keyboard toggle, Restart, Exit (with min 44px touch targets) */}
           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <button
+              onClick={() => setShowKeyboard((k) => !k)}
+              className={`w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl transition-colors flex items-center justify-center cursor-pointer shrink-0 ${
+                showKeyboard
+                  ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
+              title={showKeyboard ? 'Hide Visual Keyboard' : 'Show Visual Keyboard & Finger Guide'}
+              aria-label="Toggle Visual Keyboard"
+            >
+              <Keyboard className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setZenMode((z) => !z)}
               className="w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center cursor-pointer shrink-0"
@@ -809,6 +846,22 @@ export const ActiveTestScreen: React.FC<ActiveTestScreenProps> = ({
           liveWpm={liveWpm}
           reduceMotion={preferences.reduceMotion}
           highContrast={preferences.highContrastMode}
+        />
+      )}
+
+      {/* Real-Time Visual Keyboard with Finger Placement & Error Pattern Diagnostics */}
+      {showKeyboard && !zenMode && (
+        <LiveVisualKeyboard
+          nextTargetChar={targetText[typedText.length] || ''}
+          lastKeystroke={lastKeystroke}
+          keyStats={liveKeyStats}
+          errorCount={errorCount}
+          totalTyped={totalTyped}
+          isActive={Boolean(startTime && (!isTimeMode || timeRemaining > 0))}
+          reduceMotion={preferences.reduceMotion}
+          highContrast={preferences.highContrastMode}
+          initialMode={preferences.visualKeyboardMode || 'fingers'}
+          collapsible={true}
         />
       )}
 

@@ -516,6 +516,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                 />
               </label>
+
+              {/* Show Real-Time Visual Keyboard */}
+              <label className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
+                <div>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 block">Real-Time Visual Keyboard</span>
+                  <span className="text-xs text-slate-500">Interactive keyboard displaying live keystroke highlights, finger placement guides, and error diagnostics</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={localPrefs.showVisualKeyboard ?? true}
+                  onChange={(e) => setLocalPrefs({ ...localPrefs, showVisualKeyboard: e.target.checked })}
+                  className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
+                />
+              </label>
             </div>
           </div>
 

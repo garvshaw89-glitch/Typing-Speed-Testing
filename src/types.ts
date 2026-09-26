@@ -50,6 +50,9 @@ export interface UserPreferences {
   reduceMotion: boolean;
   showLiveStats: boolean;
   showRhythmGraph?: boolean;
+  showVisualKeyboard?: boolean;
+  visualKeyboardMode?: 'fingers' | 'heatmap';
+  showFingerGuides?: boolean;
   autoStartCountdown: boolean;
   targetWpm?: number;
   lastUpdated: number;

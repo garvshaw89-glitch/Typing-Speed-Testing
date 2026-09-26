@@ -25,6 +25,9 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   reduceMotion: false,
   showLiveStats: true,
   showRhythmGraph: true,
+  showVisualKeyboard: true,
+  visualKeyboardMode: 'fingers',
+  showFingerGuides: true,
   autoStartCountdown: true,
   targetWpm: 60,
   lastUpdated: Date.now(),
@@ -52,6 +55,9 @@ export function getPreferences(): UserPreferences {
       soundPack: parsed.soundPack || 'mechanical',
       soundVolume: typeof parsed.soundVolume === 'number' ? parsed.soundVolume : 0.8,
       showRhythmGraph: parsed.showRhythmGraph ?? true,
+      showVisualKeyboard: parsed.showVisualKeyboard ?? true,
+      visualKeyboardMode: parsed.visualKeyboardMode || 'fingers',
+      showFingerGuides: parsed.showFingerGuides ?? true,
     };
   } catch (e) {
     console.error('Failed to parse preferences from localStorage', e);
