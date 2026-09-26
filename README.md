@@ -40,7 +40,7 @@
   <p>
     <strong>🌐 Direct Live URL:</strong><br/>
     <a href="https://typing-speed-testing-kappa.vercel.app/" target="_blank" rel="noopener noreferrer">
-      <code>https://typing-speed-tester-two.vercel.app/</code>
+      <code>https://typing-speed-tester-kappa.vercel.app/</code>
     </a>
   </p>
 
