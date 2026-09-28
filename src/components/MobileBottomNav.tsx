@@ -17,21 +17,21 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 pb-safe shadow-lg"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090A0C]/95 backdrop-blur-xl border-t border-white/[0.08] pb-safe shadow-[0_-10px_25px_rgba(0,0,0,0.6)]"
       aria-label="Mobile Navigation"
     >
-      <div className="grid grid-cols-5 items-center h-14 max-w-md mx-auto px-2">
+      <div className="grid grid-cols-5 items-center h-14 max-w-md mx-auto px-2 font-mono">
         {/* Tab 1: Practice / Home */}
         <button
           onClick={() => onNavigate('home')}
           className={`flex flex-col items-center justify-center h-full min-h-[44px] transition-colors cursor-pointer ${
             currentScreen === 'home' || currentScreen === 'prep' || currentScreen === 'test'
-              ? 'text-blue-600 dark:text-blue-400 font-bold'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'text-[#6C8CFF] font-bold'
+              : 'text-[#686B72] hover:text-[#F5F5F0]'
           }`}
         >
           <Play className={`w-4 h-4 ${currentScreen === 'home' || currentScreen === 'test' ? 'fill-current' : ''}`} />
-          <span className="text-[10px] mt-0.5 tracking-tight">Practice</span>
+          <span className="text-[9px] mt-0.5 tracking-wider uppercase">TEST</span>
         </button>
 
         {/* Tab 2: Leaderboard */}
@@ -39,12 +39,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           onClick={() => onNavigate('leaderboard')}
           className={`flex flex-col items-center justify-center h-full min-h-[44px] transition-colors cursor-pointer ${
             currentScreen === 'leaderboard'
-              ? 'text-blue-600 dark:text-blue-400 font-bold'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'text-[#6C8CFF] font-bold'
+              : 'text-[#686B72] hover:text-[#F5F5F0]'
           }`}
         >
           <Trophy className={`w-4 h-4 ${currentScreen === 'leaderboard' ? 'fill-current' : ''}`} />
-          <span className="text-[10px] mt-0.5 tracking-tight">Ranks</span>
+          <span className="text-[9px] mt-0.5 tracking-wider uppercase">RANKS</span>
         </button>
 
         {/* Tab 3: History */}
@@ -52,30 +52,30 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           onClick={() => onNavigate('history')}
           className={`flex flex-col items-center justify-center h-full min-h-[44px] transition-colors cursor-pointer ${
             currentScreen === 'history'
-              ? 'text-blue-600 dark:text-blue-400 font-bold'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'text-[#6C8CFF] font-bold'
+              : 'text-[#686B72] hover:text-[#F5F5F0]'
           }`}
         >
           <History className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5 tracking-tight">History</span>
+          <span className="text-[9px] mt-0.5 tracking-wider uppercase">LOGS</span>
         </button>
 
         {/* Tab 4: Trophies */}
         <button
           onClick={onOpenTrophies}
-          className="flex flex-col items-center justify-center h-full min-h-[44px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+          className="flex flex-col items-center justify-center h-full min-h-[44px] text-[#686B72] hover:text-amber-400 transition-colors cursor-pointer"
         >
-          <Award className="w-4 h-4 text-amber-500" />
-          <span className="text-[10px] mt-0.5 tracking-tight">Trophies</span>
+          <Award className="w-4 h-4 text-amber-400" />
+          <span className="text-[9px] mt-0.5 tracking-wider uppercase">TROPHIES</span>
         </button>
 
         {/* Tab 5: Settings */}
         <button
           onClick={onOpenSettings}
-          className="flex flex-col items-center justify-center h-full min-h-[44px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+          className="flex flex-col items-center justify-center h-full min-h-[44px] text-[#686B72] hover:text-[#F5F5F0] transition-colors cursor-pointer"
         >
           <Settings className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5 tracking-tight">Settings</span>
+          <span className="text-[9px] mt-0.5 tracking-wider uppercase">CONFIG</span>
         </button>
       </div>
     </nav>

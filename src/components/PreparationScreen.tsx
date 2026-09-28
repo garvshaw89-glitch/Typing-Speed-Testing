@@ -20,7 +20,6 @@ export const PreparationScreen: React.FC<PreparationScreenProps> = ({
   const [isGo, setIsGo] = useState<boolean>(false);
 
   useEffect(() => {
-    // Escape key listener to cancel
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onCancel();
@@ -54,46 +53,49 @@ export const PreparationScreen: React.FC<PreparationScreenProps> = ({
   }, [onCancel, onCountdownComplete]);
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-3 sm:p-4 text-center animate-fade-in my-auto">
-      <div className="max-w-md w-full p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-5 sm:space-y-6 relative">
+    <div className="min-h-[70vh] flex flex-col items-center justify-center p-4 text-center animate-fade-in my-auto select-none">
+      <div className="max-w-md w-full p-8 sm:p-10 rounded-3xl bg-[#090A0C] border border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.8)] space-y-6 relative backdrop-blur-xl">
         <button
           onClick={onCancel}
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center cursor-pointer"
-          title="Cancel countdown (Esc)"
+          className="absolute top-4 right-4 w-10 h-10 rounded-xl text-[#686B72] hover:text-[#F5F5F0] hover:bg-white/[0.04] transition-colors flex items-center justify-center cursor-pointer"
+          title="Abort calibration (Esc)"
           aria-label="Cancel countdown"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         <div className="space-y-1">
-          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
-            {isWarmupMode ? '🌿 Warm-up Session' : 'Get Ready To Type!'}
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-[#15181D] border border-white/[0.06] text-[10px] font-mono tracking-widest text-[#6C8CFF] uppercase">
+            <span>CALIBRATION SEQUENCE</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-display font-bold text-[#F5F5F0] uppercase tracking-tight">
+            {isWarmupMode ? 'Cadence Warm-up' : 'Initialize Flow'}
           </h2>
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-mono text-[#A5A7AC]">
             {isWarmupMode
-              ? '30s · Relax your hands and focus on steady rhythm'
-              : `${preferences.testDuration}s · ${preferences.difficultyLevel} · ${preferences.textType}`}
+              ? '30s · Settle fingers on home row and breathe'
+              : `${preferences.testDuration}s · ${preferences.difficultyLevel.toUpperCase()} · ${preferences.textType.toUpperCase()}`}
           </p>
         </div>
 
         {/* Big Countdown Number */}
-        <div className="py-6 sm:py-8 min-h-[140px] sm:min-h-[160px] flex items-center justify-center">
+        <div className="py-8 min-h-[160px] flex items-center justify-center">
           {isGo ? (
-            <span className="text-6xl sm:text-8xl font-black text-emerald-500 animate-bounce tracking-tight">
-              GO!
+            <span className="text-7xl sm:text-9xl font-mono font-black text-emerald-400 drop-shadow-[0_0_35px_rgba(52,211,153,0.4)] tracking-tighter animate-pop-in">
+              ENGAGE
             </span>
           ) : (
             <span
               key={count}
-              className="text-6xl sm:text-8xl font-black text-blue-600 dark:text-blue-400 animate-ping-once tracking-tight"
+              className="text-7xl sm:text-9xl font-mono font-black text-[#6C8CFF] drop-shadow-[0_0_35px_rgba(108,140,255,0.4)] tracking-tighter animate-ping-once"
             >
               {count}
             </span>
           )}
         </div>
 
-        <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-          Press <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border text-slate-700 dark:text-slate-300">Esc</kbd> anytime to cancel
+        <p className="text-[11px] font-mono text-[#686B72]">
+          Press <kbd className="px-1.5 py-0.5 rounded bg-[#15181D] border border-white/[0.08] text-[#A5A7AC]">ESC</kbd> to disengage
         </p>
       </div>
     </div>

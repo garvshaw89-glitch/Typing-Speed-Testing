@@ -155,23 +155,23 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   }, [chartData]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-8 animate-fade-in select-none">
       {/* Header & Back Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToHome}
-            className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2.5 rounded-xl border border-white/[0.08] bg-[#101216] text-[#A5A7AC] hover:text-[#F5F5F0] hover:border-white/[0.2] transition-colors cursor-pointer"
             title="Back to Home"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Test History & Analytics
+            <h1 className="text-2xl sm:text-4xl font-display font-bold text-[#F5F5F0] tracking-tight uppercase">
+              Telemetry &amp; History
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Track your typing performance improvements over time
+            <p className="text-xs font-mono text-[#686B72]">
+              Historical records and keystroke confusion matrix analytics
             </p>
           </div>
         </div>
@@ -181,108 +181,108 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
           <button
             onClick={() => exportHistoryToCSV()}
             disabled={history.length === 0}
-            className="py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs flex items-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+            className="py-2.5 px-3.5 rounded-xl border border-white/[0.08] bg-[#101216] text-[#A5A7AC] hover:text-[#F5F5F0] hover:border-white/[0.2] font-mono text-xs font-semibold flex items-center gap-2 disabled:opacity-40 transition-colors cursor-pointer"
           >
-            <Download className="w-4 h-4 text-emerald-500" />
-            <span>Export CSV</span>
+            <Download className="w-3.5 h-3.5 text-[#6C8CFF]" />
+            <span>EXPORT CSV</span>
           </button>
 
           <button
             onClick={() => setShowClearConfirm(true)}
             disabled={history.length === 0}
-            className="py-2 px-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-semibold text-xs flex items-center gap-1.5 hover:bg-rose-100 dark:hover:bg-rose-900/40 disabled:opacity-50 transition-colors"
+            className="py-2.5 px-3.5 rounded-xl border border-rose-950/60 bg-rose-950/20 text-rose-300 font-mono text-xs font-semibold flex items-center gap-2 hover:bg-rose-950/40 disabled:opacity-40 transition-colors cursor-pointer"
           >
-            <Trash2 className="w-4 h-4" />
-            <span>Clear History</span>
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>CLEAR LOGS</span>
           </button>
         </div>
       </div>
 
       {/* Aggregate Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-            <span>All-time Best</span>
-            <Trophy className="w-4 h-4 text-amber-500" />
+        <div className="p-4 rounded-2xl bg-[#090A0C] border border-white/[0.08] shadow-sm font-mono">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#686B72]">
+            <span>ALL-TIME BEST</span>
+            <Trophy className="w-3.5 h-3.5 text-amber-400" />
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">{stats.bestWpm} WPM</div>
+          <div className="mt-2 text-2xl sm:text-3xl font-black font-mono-num text-[#F5F5F0]">{stats.bestWpm} WPM</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-            <span>Average Speed</span>
-            <TrendingUp className="w-4 h-4 text-blue-500" />
+        <div className="p-4 rounded-2xl bg-[#090A0C] border border-white/[0.08] shadow-sm font-mono">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#686B72]">
+            <span>AVERAGE SPEED</span>
+            <TrendingUp className="w-3.5 h-3.5 text-[#6C8CFF]" />
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">{stats.averageWpm} WPM</div>
+          <div className="mt-2 text-2xl sm:text-3xl font-black font-mono-num text-[#F5F5F0]">{stats.averageWpm} WPM</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-            <span>Best Accuracy</span>
-            <Target className="w-4 h-4 text-emerald-500" />
+        <div className="p-4 rounded-2xl bg-[#090A0C] border border-white/[0.08] shadow-sm font-mono">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#686B72]">
+            <span>BEST ACCURACY</span>
+            <Target className="w-3.5 h-3.5 text-emerald-400" />
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">{stats.bestAccuracy}%</div>
+          <div className="mt-2 text-2xl sm:text-3xl font-black font-mono-num text-[#F5F5F0]">{stats.bestAccuracy}%</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-sm">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-            <span>Total Tests</span>
-            <Award className="w-4 h-4 text-indigo-500" />
+        <div className="p-4 rounded-2xl bg-[#090A0C] border border-white/[0.08] shadow-sm font-mono">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#686B72]">
+            <span>TOTAL TRIALS</span>
+            <Award className="w-3.5 h-3.5 text-[#8A6CFF]" />
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">{stats.totalTestsCompleted}</div>
+          <div className="mt-2 text-2xl sm:text-3xl font-black font-mono-num text-[#F5F5F0]">{stats.totalTestsCompleted}</div>
         </div>
       </div>
 
       {/* View Toggle & Filters */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-wrap items-center justify-between gap-4">
-        {/* Toggle List / Chart */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold">
+      <div className="p-4 rounded-2xl bg-[#090A0C] border border-white/[0.08] shadow-sm flex flex-wrap items-center justify-between gap-4">
+        {/* Toggle List / Chart / Heatmap / Trophies */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#101216] rounded-xl border border-white/[0.06] text-xs font-mono">
           <button
             onClick={() => setViewMode('list')}
-            className={`py-1.5 px-3 rounded-lg transition-all ${
+            className={`py-2 px-3.5 rounded-lg font-bold tracking-wider transition-all cursor-pointer ${
               viewMode === 'list'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#15181D] text-[#F5F5F0] border border-white/[0.1] shadow-xs'
+                : 'text-[#A5A7AC] hover:text-[#F5F5F0]'
             }`}
           >
-            Table List
+            TABLE LIST
           </button>
           <button
             onClick={() => setViewMode('chart')}
-            className={`py-1.5 px-3 rounded-lg transition-all ${
+            className={`py-2 px-3.5 rounded-lg font-bold tracking-wider transition-all cursor-pointer ${
               viewMode === 'chart'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#15181D] text-[#6C8CFF] border border-white/[0.1] shadow-xs'
+                : 'text-[#A5A7AC] hover:text-[#F5F5F0]'
             }`}
           >
-            Trend Graph
+            TREND GRAPH
           </button>
           <button
             onClick={() => setViewMode('keyboard')}
-            className={`py-1.5 px-3 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`py-2 px-3.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'keyboard'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#15181D] text-[#6C8CFF] border border-white/[0.1] shadow-xs'
+                : 'text-[#A5A7AC] hover:text-[#F5F5F0]'
             }`}
           >
             <Keyboard className="w-3.5 h-3.5" />
-            <span>Key Heatmap</span>
+            <span>KEY HEATMAP</span>
           </button>
           <button
             onClick={() => setViewMode('trophies')}
-            className={`py-1.5 px-3 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`py-2 px-3.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'trophies'
-                ? 'bg-amber-500 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-[#15181D] text-amber-400 border border-white/[0.1] shadow-xs'
+                : 'text-[#A5A7AC] hover:text-[#F5F5F0]'
             }`}
           >
             <Trophy className="w-3.5 h-3.5 text-amber-400" />
-            <span>Trophies</span>
+            <span>TROPHIES</span>
             <span
               className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                 viewMode === 'trophies'
-                  ? 'bg-white/20 text-white'
-                  : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                  ? 'bg-amber-400/20 text-amber-300'
+                  : 'bg-amber-500/10 text-amber-400'
               }`}
             >
               {unlockedTrophyCount}/{achievements.length}
@@ -290,22 +290,22 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
           </button>
         </div>
 
-        {/* Date Filters (hidden in trophies mode) */}
+        {/* Date Filters */}
         {viewMode !== 'trophies' && (
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
-            <ListFilter className="w-4 h-4 text-slate-400" />
-            <span>Range:</span>
+          <div className="flex items-center gap-2 text-xs font-mono text-[#A5A7AC]">
+            <ListFilter className="w-3.5 h-3.5 text-[#686B72]" />
+            <span>RANGE:</span>
             {(['all', '7days', '30days'] as FilterRange[]).map((range) => (
               <button
                 key={range}
                 onClick={() => setFilterRange(range)}
-                className={`px-2.5 py-1 rounded-lg border transition-colors ${
+                className={`px-3 py-1 rounded-lg transition-colors uppercase cursor-pointer ${
                   filterRange === range
-                    ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 font-bold'
-                    : 'border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    ? 'bg-[#15181D] text-[#6C8CFF] border border-white/[0.1] font-bold'
+                    : 'text-[#686B72] hover:text-[#F5F5F0]'
                 }`}
               >
-                {range === 'all' ? 'All Time' : range === '7days' ? 'Last 7 Days' : 'Last 30 Days'}
+                {range === 'all' ? 'All Time' : range === '7days' ? '7 Days' : '30 Days'}
               </button>
             ))}
           </div>
@@ -319,51 +319,51 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
 
       {/* Chart View (Recharts Line Chart) */}
       {viewMode === 'chart' && (
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[#090A0C] border border-white/[0.08] shadow-2xl space-y-6">
           {/* Header with Title and Mode Toggles */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700/60 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
             <div>
-              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <span>WPM Progression Over Time</span>
+              <h3 className="text-base sm:text-lg font-display font-bold text-[#F5F5F0] flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-[#6C8CFF]" />
+                <span>WPM PROGRESSION OVER TIME</span>
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs font-mono text-[#686B72] mt-0.5">
                 Visualizing typing speed velocity and accuracy growth across test sessions
               </p>
             </div>
 
             {/* Metric Mode Filter */}
             {chartData.length > 0 && (
-              <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold shrink-0">
+              <div className="flex items-center gap-1 p-1 bg-[#101216] rounded-xl border border-white/[0.06] text-xs font-mono shrink-0">
                 <button
                   onClick={() => setChartMetric('net')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                     chartMetric === 'net'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-[#15181D] text-[#6C8CFF] border border-white/[0.1] font-bold'
+                      : 'text-[#686B72] hover:text-[#F5F5F0]'
                   }`}
                 >
-                  Net WPM
+                  NET WPM
                 </button>
                 <button
                   onClick={() => setChartMetric('net_raw')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                     chartMetric === 'net_raw'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-[#15181D] text-[#6C8CFF] border border-white/[0.1] font-bold'
+                      : 'text-[#686B72] hover:text-[#F5F5F0]'
                   }`}
                 >
-                  Net vs Raw
+                  NET + RAW
                 </button>
                 <button
                   onClick={() => setChartMetric('net_acc')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                     chartMetric === 'net_acc'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-[#15181D] text-[#6C8CFF] border border-white/[0.1] font-bold'
+                      : 'text-[#686B72] hover:text-[#F5F5F0]'
                   }`}
                 >
-                  WPM &amp; Accuracy
+                  NET + ACC
                 </button>
               </div>
             )}
@@ -597,59 +597,59 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
 
       {/* List View Table */}
       {viewMode === 'list' && (
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
+        <div className="p-6 rounded-3xl bg-[#090A0C] border border-white/[0.08] shadow-2xl overflow-hidden font-mono">
           {sortedHistory.length === 0 ? (
             <div className="py-12 text-center space-y-3">
-              <Calendar className="w-10 h-10 text-slate-300 mx-auto" />
-              <p className="text-base font-bold text-slate-700 dark:text-slate-300">No test results found</p>
-              <p className="text-xs text-slate-500">Take a typing test to start tracking your performance history.</p>
+              <Calendar className="w-10 h-10 text-[#686B72] mx-auto" />
+              <p className="text-base font-bold text-[#F5F5F0]">NO TEST RECORDS RECORDED</p>
+              <p className="text-xs text-[#686B72]">Engage a typing speed trial to log performance telemetry.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
-                    <th className="py-3 px-2 sm:px-3">Date</th>
-                    <th className="py-3 px-2 sm:px-3 hidden sm:table-cell">Duration</th>
-                    <th className="py-3 px-2 sm:px-3 hidden md:table-cell">Mode</th>
-                    <th className="py-3 px-2 sm:px-3">Speed</th>
-                    <th className="py-3 px-2 sm:px-3">Accuracy</th>
-                    <th className="py-3 px-2 sm:px-3 hidden sm:table-cell">Errors</th>
-                    <th className="py-3 px-2 sm:px-3 text-right">Action</th>
+                  <tr className="border-b border-white/[0.06] text-[#686B72] font-bold uppercase tracking-widest text-[10px]">
+                    <th className="py-3.5 px-3">DATE</th>
+                    <th className="py-3.5 px-3 hidden sm:table-cell">DURATION</th>
+                    <th className="py-3.5 px-3 hidden md:table-cell">MODE</th>
+                    <th className="py-3.5 px-3">SPEED</th>
+                    <th className="py-3.5 px-3">ACCURACY</th>
+                    <th className="py-3.5 px-3 hidden sm:table-cell">ERRORS</th>
+                    <th className="py-3.5 px-3 text-right">ACTION</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-white/[0.04]">
                   {sortedHistory.map((item) => (
                     <tr
                       key={item.testId}
-                      className="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors"
+                      className="hover:bg-white/[0.03] transition-colors"
                     >
-                      <td className="py-3 px-2 sm:px-3 text-slate-900 dark:text-slate-200 font-medium whitespace-nowrap text-xs">
+                      <td className="py-3.5 px-3 text-[#F5F5F0] font-medium whitespace-nowrap text-xs">
                         {new Date(item.timestamp).toLocaleDateString(undefined, {
                           month: 'short',
                           day: 'numeric',
                         })}
                       </td>
-                      <td className="py-3 px-2 sm:px-3 text-slate-600 dark:text-slate-400 hidden sm:table-cell font-mono tabular-nums">
-                        {item.duration}s
+                      <td className="py-3.5 px-3 text-[#A5A7AC] hidden sm:table-cell font-mono-num tabular-nums">
+                        {item.duration}S
                       </td>
-                      <td className="py-3 px-2 sm:px-3 text-slate-600 dark:text-slate-400 capitalize hidden md:table-cell">
+                      <td className="py-3.5 px-3 text-[#A5A7AC] uppercase hidden md:table-cell text-xs">
                         {item.difficulty} · {item.textType}
                       </td>
-                      <td className="py-3 px-2 sm:px-3 font-extrabold text-blue-600 dark:text-blue-400 font-mono tabular-nums whitespace-nowrap">
-                        {item.wpm} <span className="text-[10px] font-normal text-slate-400">WPM</span>
+                      <td className="py-3.5 px-3 font-extrabold text-[#6C8CFF] font-mono-num tabular-nums whitespace-nowrap">
+                        {item.wpm} <span className="text-[10px] font-normal text-[#686B72]">WPM</span>
                       </td>
-                      <td className="py-3 px-2 sm:px-3 font-extrabold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums whitespace-nowrap">
+                      <td className="py-3.5 px-3 font-extrabold text-emerald-400 font-mono-num tabular-nums whitespace-nowrap">
                         {item.accuracy}%
                       </td>
-                      <td className="py-3 px-2 sm:px-3 font-medium text-rose-600 dark:text-rose-400 hidden sm:table-cell font-mono tabular-nums">
+                      <td className="py-3.5 px-3 font-medium text-[#FF6B6B] hidden sm:table-cell font-mono-num tabular-nums">
                         {item.errors}
                       </td>
-                      <td className="py-3 px-2 sm:px-3 text-right">
+                      <td className="py-3.5 px-3 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => setViewMode('keyboard')}
-                            className="w-9 h-9 min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                            className="w-9 h-9 inline-flex items-center justify-center rounded-xl text-[#686B72] hover:text-[#6C8CFF] hover:bg-white/[0.04] transition-colors cursor-pointer"
                             title="Inspect Key Heatmap"
                             aria-label="Inspect Key Heatmap"
                           >
@@ -657,7 +657,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
                           </button>
                           <button
                             onClick={() => handleDeleteItem(item.testId)}
-                            className="w-9 h-9 min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                            className="w-9 h-9 inline-flex items-center justify-center rounded-xl text-[#686B72] hover:text-[#FF6B6B] hover:bg-rose-950/20 transition-colors cursor-pointer"
                             title="Delete Record"
                             aria-label="Delete test record"
                           >
@@ -676,27 +676,27 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
 
       {/* Clear All Confirmation Modal */}
       {showClearConfirm && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-sm w-full p-6 rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-600">
-              <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Clear All History?</h3>
+        <div className="fixed inset-0 z-50 bg-[#050505]/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="max-w-md w-full p-6 sm:p-8 rounded-3xl bg-[#101216] border border-white/[0.12] shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-400">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              <h3 className="text-lg font-display font-bold text-[#F5F5F0]">Purge Historical Telemetry?</h3>
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              This will permanently remove all stored test records and statistics. This action cannot be undone.
+            <p className="text-sm font-mono text-[#A5A7AC] leading-relaxed">
+              This will permanently delete all stored test records, confusion matrices, and speed progression curves.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm transition-colors"
+                className="flex-1 py-2.5 px-4 rounded-xl border border-white/[0.1] font-mono text-xs font-semibold text-[#A5A7AC] hover:text-[#F5F5F0] hover:bg-white/[0.04] transition-colors cursor-pointer"
               >
-                Cancel
+                CANCEL
               </button>
               <button
                 onClick={handleClearAll}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 font-semibold text-white text-sm transition-colors"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-800/60 font-mono text-xs font-bold text-rose-200 transition-colors cursor-pointer"
               >
-                Clear All
+                PURGE ALL
               </button>
             </div>
           </div>

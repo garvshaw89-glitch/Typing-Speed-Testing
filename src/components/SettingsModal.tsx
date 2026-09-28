@@ -133,20 +133,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-fade-in">
-      <div className="max-w-xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6">
+    <div className="fixed inset-0 z-50 bg-[#050505]/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 animate-fade-in select-none">
+      <div className="max-w-xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-8 rounded-3xl bg-[#090A0C] border border-white/[0.08] shadow-[0_25px_60px_rgba(0,0,0,0.85)] space-y-6">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
-            <Sliders className="w-5 h-5 text-blue-500" />
-            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">Settings & Preferences</h2>
+            <Sliders className="w-4 h-4 text-[#6C8CFF]" />
+            <h2 className="text-lg sm:text-xl font-display font-bold text-[#F5F5F0] tracking-tight uppercase">
+              Laboratory Settings
+            </h2>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center cursor-pointer"
+            className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl text-[#686B72] hover:text-[#F5F5F0] hover:bg-white/[0.04] transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Close Settings Modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 

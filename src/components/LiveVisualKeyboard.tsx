@@ -552,9 +552,9 @@ export const LiveVisualKeyboard: React.FC<LiveVisualKeyboardProps> = ({
   };
 
   return (
-    <div className="w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden transition-all duration-200">
+    <div className="w-full rounded-2xl bg-[#090A0C] border border-white/[0.08] shadow-2xl overflow-hidden transition-all duration-200 font-mono">
       {/* Visual Keyboard Top Bar: Live Guidance & Controls */}
-      <div className="px-3.5 py-2.5 sm:px-4 sm:py-3 bg-slate-50/80 dark:bg-slate-850/80 border-b border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
+      <div className="px-3.5 py-2.5 sm:px-4 sm:py-3 bg-[#101216] border-b border-white/[0.06] flex flex-wrap items-center justify-between gap-2.5">
         {/* Left: Active Finger Beacon & Next Key Guidance */}
         <div className="flex items-center gap-2.5 min-w-0">
           <div

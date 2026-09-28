@@ -433,7 +433,7 @@ Biomechanical Stress: Left Hand ${biomechanicalBreakdown.leftAcc}% | Right Hand 
   };
 
   return (
-    <div className="p-4 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-6">
+    <div className="p-4 sm:p-6 rounded-3xl bg-[#090A0C] border border-white/[0.08] shadow-2xl space-y-6 font-mono">
       {/* Header & Controls Toolbar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
         <div>

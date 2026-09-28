@@ -22,7 +22,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   includeNumbers: false,
   zenMode: false,
   username: 'SpeedTypist',
-  theme: 'system',
+  theme: 'dark',
   fontSize: 'medium',
   soundEffectsEnabled: true,
   soundPack: 'mechanical',

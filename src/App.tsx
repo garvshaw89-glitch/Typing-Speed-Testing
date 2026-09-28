@@ -12,6 +12,7 @@ import { ResultsScreen } from './components/ResultsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { LeaderboardView } from './components/LeaderboardView';
 import { BackgroundAura } from './components/BackgroundAura';
+import { CustomCursor } from './components/CustomCursor';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { SettingsModal } from './components/SettingsModal';
 import { HelpModal } from './components/HelpModal';
@@ -152,9 +153,15 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 selection:bg-blue-500 selection:text-white relative">
-      {/* GPU-Friendly Ambient Background Aura */}
-      <BackgroundAura reduceMotion={preferences.reduceMotion} />
+    <div className="min-h-screen bg-[#050505] text-[#F5F5F0] flex flex-col font-sans transition-colors duration-200 selection:bg-[#6C8CFF]/30 selection:text-white relative">
+      {/* Precision Instrument Custom Cursor */}
+      <CustomCursor />
+
+      {/* GPU-Friendly Ambient Background Aura with speed responsiveness */}
+      <BackgroundAura
+        reduceMotion={preferences.reduceMotion}
+        inTestMode={screen === 'test'}
+      />
 
       {/* Top Navigation Bar */}
       <Navbar
@@ -166,6 +173,7 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenHelp={() => setIsHelpOpen(true)}
         onOpenTrophies={handleOpenTrophies}
+        onStartTest={handleStartTest}
         preferences={preferences}
         onToggleTheme={handleToggleTheme}
         stats={stats}

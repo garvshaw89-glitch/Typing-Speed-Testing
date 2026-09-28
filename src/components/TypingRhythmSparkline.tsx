@@ -196,7 +196,7 @@ export const TypingRhythmSparkline: React.FC<TypingRhythmSparklineProps> = ({
   return (
     <section
       aria-label="Real-time typing rhythm and stability graph"
-      className="p-3 sm:p-4 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-700/80 shadow-sm transition-all"
+      className="p-3 sm:p-4 rounded-2xl bg-[#090A0C]/90 backdrop-blur-xl border border-white/[0.08] shadow-md transition-all font-mono"
     >
       {/* Top Header & Metrics Bar */}
       <div className="flex flex-wrap items-center justify-between gap-y-1.5 gap-x-3 mb-2 font-mono text-xs">

@@ -1,5 +1,5 @@
-import React from 'react';
-import { History, Settings, HelpCircle, Sun, Moon, Flame, Trophy } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, HelpCircle, Sun, Moon, Flame, Trophy, Volume2, VolumeX, ArrowRight } from 'lucide-react';
 import { UserPreferences, UserStats, AppScreen } from '../types';
 
 interface NavbarProps {
@@ -8,6 +8,7 @@ interface NavbarProps {
   onOpenSettings: () => void;
   onOpenHelp: () => void;
   onOpenTrophies?: () => void;
+  onStartTest?: () => void;
   preferences: UserPreferences;
   onToggleTheme: () => void;
   stats: UserStats;
@@ -19,115 +20,143 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSettings,
   onOpenHelp,
   onOpenTrophies,
+  onStartTest,
   preferences,
   onToggleTheme,
   stats,
 }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isTestActive = currentScreen === 'test' || currentScreen === 'prep';
+
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-colors pt-safe">
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Zone 1: Single Wordmark / Brand element */}
+    <header
+      className={`sticky top-0 z-40 w-full transition-all duration-300 pt-safe ${
+        isTestActive
+          ? 'opacity-40 hover:opacity-100 transition-opacity'
+          : ''
+      } ${
+        isScrolled
+          ? 'bg-[#050505]/85 backdrop-blur-xl border-b border-white/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.5)]'
+          : 'bg-[#050505]/60 backdrop-blur-md border-b border-white/[0.04]'
+      }`}
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
+        {/* Zone 1: Luxury Wordmark & Brand Philosophy */}
         <button
           onClick={() => onNavigate('home')}
-          className="flex items-center gap-2 sm:gap-3 text-left focus:outline-none group cursor-pointer shrink-0 min-h-[44px]"
+          className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer shrink-0"
         >
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden shadow-xs group-hover:scale-105 transition-transform bg-[#0b112c] flex items-center justify-center border border-slate-700/50">
-            <img src="/favicon.svg" alt="Typing Speed Test Logo" className="w-full h-full object-cover" />
+          <div className="flex items-center font-display tracking-tighter text-xl sm:text-2xl font-black text-[#F5F5F0]">
+            <span>TYPE</span>
+            <span className="text-[#6C8CFF] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">/</span>
           </div>
-          <span className="font-extrabold text-sm sm:text-lg tracking-tight text-slate-900 dark:text-white truncate max-w-[170px] sm:max-w-none">
-            Typing Speed Test
-          </span>
+
+          <div className="hidden lg:flex flex-col border-l border-white/[0.1] pl-3">
+            <span className="text-[10px] font-mono tracking-widest text-[#686B72] uppercase font-semibold">
+              PRECISION DIGITAL INSTRUMENT
+            </span>
+          </div>
         </button>
 
-        {/* Zone 2: Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/60 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
-          <button
-            onClick={() => onNavigate('home')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              currentScreen === 'home' || currentScreen === 'test' || currentScreen === 'prep'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            Practice
-          </button>
-
-          <button
-            onClick={() => onNavigate('leaderboard')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              currentScreen === 'leaderboard'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            Leaderboard
-          </button>
-
-          <button
-            onClick={() => onNavigate('history')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              currentScreen === 'history'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            History
-          </button>
+        {/* Zone 2: Editorial Navigation Links */}
+        <nav className="hidden md:flex items-center gap-1.5 p-1 bg-[#101216] rounded-xl border border-white/[0.06]">
+          {[
+            { id: 'home', label: 'TEST' },
+            { id: 'leaderboard', label: 'LEADERBOARD' },
+            { id: 'history', label: 'STATS & HEATMAP' },
+          ].map((item) => {
+            const isActive = currentScreen === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id as AppScreen)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium tracking-wider transition-all duration-150 cursor-pointer ${
+                  isActive
+                    ? 'bg-[#15181D] text-[#F5F5F0] shadow-sm border border-white/[0.08]'
+                    : 'text-[#A5A7AC] hover:text-[#F5F5F0] hover:bg-white/[0.03]'
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
 
           {onOpenTrophies && (
             <button
               onClick={onOpenTrophies}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center gap-1"
+              className="px-3 py-1.5 rounded-lg text-xs font-mono font-medium tracking-wider text-[#A5A7AC] hover:text-[#F5F5F0] hover:bg-white/[0.03] transition-all cursor-pointer flex items-center gap-1.5"
             >
-              <Trophy className="w-3.5 h-3.5 text-amber-500" />
-              <span>Trophies</span>
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span>TROPHIES</span>
             </button>
           )}
         </nav>
 
-        {/* Zone 3: Actions & Controls (with min 44px touch targets) */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Active Streak Badge */}
+        {/* Zone 3: Telemetry, Settings, & Quick Launch */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Daily Streak Indicator */}
           {stats.currentStreakDays > 0 && (
-            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold">
-              <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-              <span>{stats.currentStreakDays}d Streak</span>
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#101216] border border-white/[0.08] text-xs font-mono text-[#A5A7AC]">
+              <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
+              <span className="text-[#F5F5F0] font-semibold">{stats.currentStreakDays}D</span>
+              <span className="text-[#686B72]">STREAK</span>
             </div>
           )}
 
-          {/* Settings Button */}
+          {/* Audio pack quick indicator */}
           <button
             onClick={onOpenSettings}
-            className="w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center shrink-0"
-            title="Audio & Test Settings"
+            className="w-10 h-10 rounded-xl bg-[#101216] border border-white/[0.08] text-[#A5A7AC] hover:text-[#F5F5F0] hover:border-white/[0.18] transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            title={preferences.soundEffectsEnabled ? `Sound Active: ${preferences.soundPack}` : 'Sound Muted'}
+            aria-label="Sound Settings"
+          >
+            {preferences.soundEffectsEnabled ? (
+              <Volume2 className="w-4 h-4 text-[#6C8CFF]" />
+            ) : (
+              <VolumeX className="w-4 h-4 text-[#686B72]" />
+            )}
+          </button>
+
+          {/* Settings Modal Button */}
+          <button
+            onClick={onOpenSettings}
+            className="w-10 h-10 rounded-xl bg-[#101216] border border-white/[0.08] text-[#A5A7AC] hover:text-[#F5F5F0] hover:border-white/[0.18] transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            title="Audio, Heatmap & Laboratory Settings"
             aria-label="Settings"
           >
             <Settings className="w-4 h-4" />
           </button>
 
-          {/* Help Button */}
+          {/* Help Modal Button */}
           <button
             onClick={onOpenHelp}
-            className="w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center shrink-0"
-            title="Shortcuts & Instructions"
-            aria-label="Instructions"
+            className="w-10 h-10 rounded-xl bg-[#101216] border border-white/[0.08] text-[#A5A7AC] hover:text-[#F5F5F0] hover:border-white/[0.18] transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            title="Keystroke Instructions & Diagnostics"
+            aria-label="Help"
           >
             <HelpCircle className="w-4 h-4" />
           </button>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={onToggleTheme}
-            className="w-10 h-10 sm:w-11 sm:h-11 min-h-[44px] min-w-[44px] rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center shrink-0"
-            title={`Toggle Theme (${preferences.theme})`}
-            aria-label="Toggle Color Theme"
-          >
-            {preferences.theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-slate-600" />
-            )}
-          </button>
+          {/* Quick Start CTA on non-test screens */}
+          {currentScreen !== 'test' && currentScreen !== 'prep' && onStartTest && (
+            <button
+              onClick={onStartTest}
+              data-cursor="start"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#6C8CFF] hover:bg-[#5A7BFF] text-white text-xs font-mono font-bold tracking-wider uppercase transition-all shadow-[0_4px_16px_rgba(108,140,255,0.25)] hover:shadow-[0_6px_22px_rgba(108,140,255,0.4)] cursor-pointer group"
+            >
+              <span>START TEST</span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+            </button>
+          )}
         </div>
       </div>
     </header>
